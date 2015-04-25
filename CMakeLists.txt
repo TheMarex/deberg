@@ -1,0 +1,21 @@
+project(deberg)
+
+cmake_minimum_required(VERSION 2.8.8)
+
+add_definitions(-std=c++11)
+
+include_directories(${CMAKE_SOURCE_DIR}/third_party/)
+
+set(BOOST_COMPONENTS unit_test_framework)
+
+#Check Boost
+set(BOOST_MIN_VERSION "1.49.0")
+find_package(Boost ${BOOST_MIN_VERSION} COMPONENTS ${BOOST_COMPONENTS} REQUIRED)
+if(NOT Boost_FOUND)
+  message(FATAL_ERROR "Fatal error: Boost (version >= 1.49.0) required.\n")
+endif()
+include_directories(${Boost_INCLUDE_DIRS})
+add_definitions(-DBOOST_TEST_DYN_LINK)
+
+add_executable(tests tests/tests.cpp tests/reader_test.cpp)
+target_link_libraries(tests ${Boost_LIBRARIES})
