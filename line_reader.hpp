@@ -3,7 +3,12 @@
 
 #include "line.hpp"
 
+#include <tinyxml2/tinyxml2.h>
+
+#include <boost/assert.hpp>
+
 #include <iostream>
+#include <sstream>
 #include <fstream>
 
 class line_reader
@@ -29,6 +34,25 @@ public:
     line parse_line(const std::string& input_line)
     {
         line l;
+
+        auto pos = input_line.find(':');
+        std::string input_id = input_line.substr(0, pos);
+        l.id = std::stoi(input_id);
+
+        tinyxml2::XMLDocument doc;
+        doc.Parse(input_line.c_str() + pos + 1);
+        std::stringstream coordinates_stream;
+        coordinates_stream << doc.RootElement()->FirstChild()->FirstChild()->ToText()->Value();
+
+        double x;
+        double y;
+        char delimiter;
+        while (coordinates_stream >> x >> delimiter >> y)
+        {
+            BOOST_ASSERT(delimiter == ',');
+            l.coordinates.emplace_back(point {x, y});
+        }
+
         return std::move(l);
     }
 
