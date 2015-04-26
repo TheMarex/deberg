@@ -2,11 +2,13 @@
 #define LINE_READER_HPP
 
 #include "line.hpp"
+#include "gml_check.hpp"
 
 #include <tinyxml2/tinyxml2.h>
 
 #include <boost/assert.hpp>
 
+#include <vector>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -28,9 +30,10 @@ public:
             lines.emplace_back(parse_line(current_line));
         }
 
-        return std::move(lines);
+        return lines;
     }
 
+private:
     line parse_line(const std::string& input_line)
     {
         line l;
@@ -41,6 +44,9 @@ public:
 
         tinyxml2::XMLDocument doc;
         doc.Parse(input_line.c_str() + pos + 1);
+
+        gml_check(doc.RootElement(), "gml:LineString");
+
         std::stringstream coordinates_stream;
         coordinates_stream << doc.RootElement()->FirstChild()->FirstChild()->ToText()->Value();
 
@@ -50,10 +56,10 @@ public:
         while (coordinates_stream >> x >> delimiter >> y)
         {
             BOOST_ASSERT(delimiter == ',');
-            l.coordinates.emplace_back(point {x, y});
+            l.coordinates.emplace_back(coordinate {x, y});
         }
 
-        return std::move(l);
+        return l;
     }
 
 private:

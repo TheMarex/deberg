@@ -8,7 +8,7 @@
 struct line
 {
     unsigned id;
-    std::vector<point> coordinates;
+    std::vector<coordinate> coordinates;
 };
 
 #endif
