@@ -1,7 +1,7 @@
 #ifndef LINE_READER_HPP
 #define LINE_READER_HPP
 
-#include "line.hpp"
+#include "poly_line.hpp"
 #include "gml_check.hpp"
 
 #include <tinyxml2/tinyxml2.h>
@@ -21,9 +21,9 @@ public:
     {
     }
 
-    std::vector<line> read()
+    std::vector<poly_line> read()
     {
-        std::vector<line> lines;
+        std::vector<poly_line> lines;
         std::string current_line;
         while (std::getline(input, current_line))
         {
@@ -34,9 +34,9 @@ public:
     }
 
 private:
-    line parse_line(const std::string& input_line)
+    poly_line parse_line(const std::string& input_line)
     {
-        line l;
+        poly_line l;
 
         auto pos = input_line.find(':');
         std::string input_id = input_line.substr(0, pos);

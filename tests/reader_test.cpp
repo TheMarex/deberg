@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_CASE(line_reader_test)
     test_stream << line_data;
     line_reader reader(test_stream);
 
-    std::vector<line> result = reader.read();
+    std::vector<poly_line> result = reader.read();
     BOOST_CHECK(result.size() == 1);
     BOOST_CHECK(result[0].id == 13);
     BOOST_CHECK(result[0].coordinates.size() == 2);

@@ -18,6 +18,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 add_subdirectory(./third_party/tinyxml2)
+add_subdirectory(./third_party/glm)
 
 add_executable(tests tests/tests.cpp tests/reader_test.cpp)
 target_link_libraries(tests ${Boost_LIBRARIES} tinyxml2)
