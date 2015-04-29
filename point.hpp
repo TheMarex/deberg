@@ -3,8 +3,10 @@
 
 struct coordinate
 {
-    double x;
-    double y;
+    using scalar_type = double;
+
+    scalar_type x;
+    scalar_type y;
 };
 
 struct point
