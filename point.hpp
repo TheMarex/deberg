@@ -1,13 +1,9 @@
 #ifndef POINT_HPP
 #define POINT_HPP
 
-struct coordinate
-{
-    using scalar_type = double;
+#include <glm/glm.hpp>
 
-    scalar_type x;
-    scalar_type y;
-};
+using coordinate = glm::dvec2;
 
 struct point
 {
