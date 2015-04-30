@@ -20,7 +20,9 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 add_subdirectory(./third_party/tinyxml2)
 add_subdirectory(./third_party/glm)
 
-add_executable(tests tests/tests.cpp tests/reader_test.cpp tests/geometry_tests.cpp)
+SET(TESTS_SOURCE tests/tests.cpp tests/reader_test.cpp tests/geometry_tests.cpp tests/tangent_splitter_tests.cpp)
+SET(LIBRARY_SOURCE tangent_splitter.cpp)
+add_executable(tests ${TESTS_SOURCE} ${LIBRARY_SOURCE})
 target_link_libraries(tests ${Boost_LIBRARIES} tinyxml2)
 
 

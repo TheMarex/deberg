@@ -13,20 +13,20 @@ namespace geometry
      *
      * This vector is not normalized!
      */
-    coordinate line_normal(const coordinate& first_line_point,
-                           const coordinate& second_line_point)
+    inline coordinate line_normal(const coordinate& first_line_point,
+                                  const coordinate& second_line_point)
     {
         return coordinate {-second_line_point.y + first_line_point.y,
                             second_line_point.x - first_line_point.x};
     }
 
-    coordinate::value_type cross(const coordinate& a, const coordinate& b)
+    inline coordinate::value_type cross(const coordinate& a, const coordinate& b)
     {
         return a.x * b.y - a.y * b.x;
     }
 
-    bool segment_intersection(const coordinate& first_segment_a, const coordinate& first_segment_b,
-                              const coordinate& second_segment_a, const coordinate& second_segment_b)
+    inline bool segment_intersection(const coordinate& first_segment_a, const coordinate& first_segment_b,
+                                     const coordinate& second_segment_a, const coordinate& second_segment_b)
     {
         const coordinate first_delta = first_segment_b - first_segment_a;
         const coordinate second_delta = second_segment_b - second_segment_a;
@@ -48,7 +48,7 @@ namespace geometry
         ON_LINE
     };
 
-    point_position position_to_line(const coordinate& first_line_point,
+    inline point_position position_to_line(const coordinate& first_line_point,
                                     const coordinate& second_line_point,
                                     const coordinate& point)
     {

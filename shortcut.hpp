@@ -10,17 +10,28 @@ constexpr unsigned NO_EDGE_ID = std::numeric_limits<unsigned>::max();
  */
 struct shortcut
 {
+    enum class type : char
+    {
+        UNDEFINED,
+        NO_TANGENT,
+        MINIMAL_TANGENT,
+        MAXIMAL_TANGENT,
+        DEGENERATED_TANGENT
+    };
+
     shortcut() : first(NO_EDGE_ID),
                  last(NO_EDGE_ID),
-                 split_edge(NO_EDGE_ID)
+                 split_edge(NO_EDGE_ID),
+                 classification(type::UNDEFINED)
     {}
 
-    shortcut(unsigned first, unsigned last, unsigned split_edge)
-        : first(first), last(last), split_edge(split_edge)
+    shortcut(unsigned first, unsigned last, unsigned split_edge, shortcut::type classification)
+        : first(first), last(last), split_edge(split_edge), classification(classification)
     {}
 
     unsigned first;
     unsigned last;
     unsigned split_edge;
+    type classification;
 };
 #endif

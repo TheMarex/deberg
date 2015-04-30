@@ -11,22 +11,18 @@
  * Each tangent stores the idx of the edge that splits the half-line starting
  * at i, or NO_EGDE_ID if the tangent is not split.
  */
-std::vector<shortcut> tangent_splitter::operator()(unsigned i)
+std::vector<shortcut> tangent_splitter::operator()(unsigned i) const
 {
     auto number_of_tangents = line.coordinates.size() - i;
 
     std::vector<shortcut> tangents(number_of_tangents);
-    for (auto idx = 0u; idx < number_of_tangents; idx++)
-        tangents[idx] = shortcut {i, i+idx, NO_EDGE_ID};
-
-    std::vector<shortcut_type> shortcut_classification(number_of_tangents);
-    for (auto idx = 0u; idx < number_of_tangents; idx++)
-        shortcut_classification[idx] = classify_shortcut(tangents[idx]);
+    for (auto idx = 1u; idx < number_of_tangents; idx++)
+        tangents[idx] = shortcut {i, i+idx, NO_EDGE_ID, classify_shortcut(i, i+idx)};
 
     for (auto idx = 2u; idx < number_of_tangents; idx++)
     {
-        if (shortcut_classification[idx] == shortcut_type::MAXIMAL_tangent
-         || shortcut_classification[idx] == shortcut_type::MINIMAL_tangent)
+        if (tangents[idx].classification == shortcut::type::MAXIMAL_TANGENT
+         || tangents[idx].classification == shortcut::type::MINIMAL_TANGENT)
         {
             auto k = idx-1;
             bool intersects;
@@ -36,12 +32,13 @@ std::vector<shortcut> tangent_splitter::operator()(unsigned i)
                                                             line.coordinates[i + k],
                                                             line.coordinates[i],
                                                             line.coordinates[i + idx]);
-                if (!intersects && shortcut_classification[k] == shortcut_classification[idx])
+                if (!intersects && tangents[k].classification == tangents[idx].classification)
                 {
                     BOOST_ASSERT(k < idx);
+                    BOOST_ASSERT(k > 0);
                     k = tangents[k].split_edge - i;
                 }
-                else
+                else if (!intersects)
                 {
                     k--;
                 }
@@ -50,52 +47,53 @@ std::vector<shortcut> tangent_splitter::operator()(unsigned i)
         }
     }
 
-    tangents.erase(std::remove_if(tangents.begin(), tangents.end(),
-                                  [&shortcut_classification](const shortcut& s) -> bool {
-                                  return (shortcut_classification[s.last - s.first] == shortcut_type::MAXIMAL_tangent)
-                                      || (shortcut_classification[s.last - s.first] == shortcut_type::MINIMAL_tangent);
-                                  }),
-                   tangents.end());
+    auto new_end = std::remove_if(tangents.begin(), tangents.end(),
+                                  [](const shortcut& s) -> bool {
+                                  return (s.classification != shortcut::type::MAXIMAL_TANGENT)
+                                      && (s.classification != shortcut::type::MINIMAL_TANGENT);
+                                  });
+    tangents.erase(new_end, tangents.end());
+
     return tangents;
 }
 
-tangent_splitter::shortcut_type
-tangent_splitter::classify_shortcut(const shortcut& s)
+shortcut::type
+tangent_splitter::classify_shortcut(const unsigned first, const unsigned last) const
 {
     // shortcut is a single edge
-    BOOST_ASSERT(s.first < s.last);
-    if (s.last - s.first <= 1)
+    BOOST_ASSERT(first < last);
+    if (last - first <= 1)
     {
-        return shortcut_type::NO_tangent;
+        return shortcut::type::NO_TANGENT;
     }
 
-    // in the trivial case s.last == line.coordinates.size()-1
+    // in the trivial case last == line.coordinates.size()-1
     // -> we only need to check the before element
-    BOOST_ASSERT(s.last > 0);
-    const auto& before_last = line.coordinates[s.last - 1];
-    auto pos_before = geometry::position_to_line(line.coordinates[s.first], line.coordinates[s.last], before_last);
+    BOOST_ASSERT(last > 0);
+    const auto& before_last = line.coordinates[last - 1];
+    auto pos_before = geometry::position_to_line(line.coordinates[first], line.coordinates[last], before_last);
 
     // non-trivial case -> check both before and after
-    if (s.last != line.coordinates.size() - 1)
+    if (last != line.coordinates.size() - 1)
     {
-        BOOST_ASSERT(s.last < line.coordinates.size()-1);
-        const auto& after_last = line.coordinates[s.last + 1];
-        auto pos_after = geometry::position_to_line(line.coordinates[s.first], line.coordinates[s.last], after_last);
+        BOOST_ASSERT(last < line.coordinates.size()-1);
+        const auto& after_last = line.coordinates[last + 1];
+        auto pos_after = geometry::position_to_line(line.coordinates[first], line.coordinates[last], after_last);
 
         if (pos_before != pos_after)
         {
-            return shortcut_type::NO_tangent;
+            return shortcut::type::NO_TANGENT;
         }
     }
 
     switch (pos_before)
     {
         case geometry::point_position::LEFT_OF_LINE:
-            return shortcut_type::MINIMAL_tangent;
+            return shortcut::type::MINIMAL_TANGENT;
         case geometry::point_position::RIGHT_OF_LINE:
-            return shortcut_type::MAXIMAL_tangent;
+            return shortcut::type::MAXIMAL_TANGENT;
         default:
-            return shortcut_type::DEGENERATED_tangent;
+            return shortcut::type::DEGENERATED_TANGENT;
     }
 }
 
