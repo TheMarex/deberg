@@ -3,6 +3,8 @@
 
 #include "point.hpp"
 
+#include <iostream>
+
 namespace geometry
 {
     /**
@@ -18,9 +20,25 @@ namespace geometry
                             second_line_point.x - first_line_point.x};
     }
 
-    coordinate::value_type dot_product(const coordinate& a, const coordinate& b)
+    coordinate::value_type cross(const coordinate& a, const coordinate& b)
     {
-        return (a.x * b.x + a.y * b.y);
+        return a.x * b.y - a.y * b.x;
+    }
+
+    bool segment_intersection(const coordinate& first_segment_a, const coordinate& first_segment_b,
+                              const coordinate& second_segment_a, const coordinate& second_segment_b)
+    {
+        const coordinate first_delta = first_segment_b - first_segment_a;
+        const coordinate second_delta = second_segment_b - second_segment_a;
+        auto direction_cross = cross(first_delta, second_delta);
+        // colinear
+        if (direction_cross == 0)
+            return false;
+
+        auto u = cross((second_segment_a - first_segment_a), first_delta) / direction_cross;
+        auto t = cross((second_segment_a - first_segment_a), second_delta) / direction_cross;
+
+        return (u >= 0 && u <= 1.0) && (t >= 0 && t <= 1.0);
     }
 
     enum class point_position : char
@@ -34,7 +52,7 @@ namespace geometry
                                     const coordinate& second_line_point,
                                     const coordinate& point)
     {
-        auto p = dot_product(line_normal(first_line_point, second_line_point), point);
+        auto p = glm::dot(line_normal(first_line_point, second_line_point), point);
 
         if (p > 0)
             return point_position::LEFT_OF_LINE;
