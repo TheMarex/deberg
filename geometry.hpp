@@ -52,7 +52,8 @@ namespace geometry
                                     const coordinate& second_line_point,
                                     const coordinate& point)
     {
-        auto p = glm::dot(line_normal(first_line_point, second_line_point), point);
+        auto delta = point - first_line_point;
+        auto p = glm::dot(line_normal(first_line_point, second_line_point), delta);
 
         if (p > 0)
             return point_position::LEFT_OF_LINE;
