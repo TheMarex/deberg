@@ -3,34 +3,9 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 
-namespace glm
-{
-std::ostream& operator<<(std::ostream& lhs, const coordinate& rhs)
-{
-    lhs << "("  << rhs.x << ", " << rhs.y << ")";
-    return lhs;
-}
+#include <algorithm>
 
-}
-
-namespace geometry {
-std::ostream& operator<<(std::ostream& lhs, const geometry::point_position& rhs)
-{
-    switch (rhs)
-    {
-    case geometry::point_position::LEFT_OF_LINE:
-        lhs << "LEFT_OF_LINE";
-        break;
-    case geometry::point_position::RIGHT_OF_LINE:
-        lhs << "RIGHT_OF_LINE";
-        break;
-    case geometry::point_position::ON_LINE:
-        lhs << "ON_LINE";
-        break;
-    }
-    return lhs;
-}
-}
+#include "test_utils.hpp"
 
 BOOST_AUTO_TEST_SUITE(geometry_tests)
 
@@ -65,6 +40,52 @@ BOOST_AUTO_TEST_CASE(position_to_line_test)
     BOOST_CHECK_EQUAL(geometry::position_to_line(coordinate {0, 0}, coordinate {-1, -1}, coordinate {-0.5, -1}), geometry::point_position::LEFT_OF_LINE);
     BOOST_CHECK_EQUAL(geometry::position_to_line(coordinate {0, 0}, coordinate {-1, -1}, coordinate {-0.5, 1}), geometry::point_position::RIGHT_OF_LINE);
     BOOST_CHECK_EQUAL(geometry::position_to_line(coordinate {0, 0}, coordinate {-1, -1}, coordinate {-2, -2}), geometry::point_position::ON_LINE);
+}
+
+BOOST_AUTO_TEST_CASE(compute_angles_around_origin_test)
+{
+    //        5
+    //     4     6
+    //   3    x    7
+    //     2     0
+    //        1
+    std::vector<coordinate> coordinates {
+        coordinate {0.5, -0.5},
+        coordinate {0, -1},
+        coordinate {-0.5, -0.5},
+        coordinate {-1.0, -0},
+        coordinate {-0.5, 0.5},
+        coordinate {0, 1},
+        coordinate {0.5, 0.5},
+        coordinate {1.0, 0.0},
+    };
+
+    std::vector<float> correct_angles {
+        7/4.0 * M_PI,
+        6/4.0 * M_PI,
+        5/4.0 * M_PI,
+        4/4.0 * M_PI,
+        3/4.0 * M_PI,
+        2/4.0 * M_PI,
+        1/4.0 * M_PI,
+        0,
+    };
+
+    auto angles_zero = geometry::compute_angles_around_origin(coordinate {0, 0}, coordinates.begin(), coordinates.end());
+    BOOST_CHECK_EQUAL(correct_angles.size(), angles_zero.size());
+    for (unsigned i = 0; i < angles_zero.size(); i++)
+    {
+        BOOST_CHECK(std::abs(correct_angles[i] - angles_zero[i]) < 0.01);
+    }
+
+    std::transform(coordinates.begin(), coordinates.end(), coordinates.begin(),
+                   [](const coordinate& c) { return c + coordinate {1, 1}; });
+    auto angles_offset = geometry::compute_angles_around_origin(coordinate {1, 1}, coordinates.begin(), coordinates.end());
+    BOOST_CHECK_EQUAL(correct_angles.size(), angles_offset.size());
+    for (unsigned i = 0; i < angles_offset.size(); i++)
+    {
+        BOOST_CHECK(std::abs(correct_angles[i] - angles_offset[i]) < 0.01);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

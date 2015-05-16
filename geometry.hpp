@@ -3,6 +3,8 @@
 
 #include "point.hpp"
 
+#include <vector>
+#include <algorithm>
 #include <iostream>
 
 namespace geometry
@@ -62,5 +64,27 @@ namespace geometry
 
         return point_position::ON_LINE;
     }
+
+    /// returns angles of the coordinates around the origin
+    template<typename ForwardIter>
+    inline std::vector<float> compute_angles_around_origin(const coordinate& origin,
+                                                            ForwardIter begin,
+                                                            ForwardIter end)
+    {
+        unsigned size = std::distance(begin, end);
+        std::vector<float> angles(size);
+        std::transform(begin, end, angles.begin(),
+                       [&origin](const coordinate& coord)
+                       {
+                           auto diff_vector = coord - origin;
+                           auto angle = atan2(diff_vector.y, diff_vector.x);
+                           if (angle < 0)
+                               angle += 2*M_PI;
+                           return angle;
+                       });
+
+        return angles;
+    }
+
 };
 #endif
