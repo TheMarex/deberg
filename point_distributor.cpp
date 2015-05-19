@@ -24,8 +24,6 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                                                        // sort clockwise -> angles decreasing
                                                        reverse_compare);
 
-    auto num_points = point_permutation.size();
-
     auto vertex_angles = geometry::compute_angles_around_origin(origin,
                                                                 line.coordinates.begin() + i + 1,
                                                                 line.coordinates.end());
@@ -37,6 +35,9 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
 
     sweepline_state state(line.coordinates);
 
+    using edge_assignment = std::pair<sweepline_state::edge, unsigned>;
+    std::vector<edge_assignment> edge_assignments;
+
     // this implements a rotating sweep line algorithm
     util::merge(point_permutation.begin(), point_permutation.end(),
                 vertex_permutation.begin(), vertex_permutation.end(),
@@ -44,8 +45,16 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                 {
                     return point_angles[lhs] > point_angles[rhs];
                 },
-                [](const std::size_t& point_idx) {},
-                [this, num_vertices, i, vertex_angles, &state](const std::size_t& vertex_idx)
+                [this, points_begin_idx, &edge_assignments, &state](const std::size_t& point_idx)
+                {
+                    BOOST_ASSERT(points_begin_idx + point_idx < point_coordinates.size());
+                    auto edge_iter = state.get_first_intersecting(point_coordinates[points_begin_idx + point_idx]);
+                    if (edge_iter != state.intersecting_edges.end())
+                    {
+                        edge_assignments.emplace_back(*edge_iter, point_idx);
+                    }
+                },
+                [this, num_vertices, i, &vertex_angles, &state](const std::size_t& vertex_idx)
                 {
                    // insert edge to the next vertex
                    // ignores last vertex because there is no neighbour
@@ -78,6 +87,34 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                        }
                    }
                 });
+
+    // sort assignments by index of first vertex of the edge
+    // since these are path edge this will give us a sorting along the path
+    std::sort(edge_assignments.begin(), edge_assignments.end(),
+             [](const edge_assignment& lhs, const edge_assignment& rhs)
+             {
+                return lhs.first.first < rhs.first.first;
+             });
+
+    // we assume that the tangents are already sorted by the end vertex
+    auto assignments_iter = edge_assignments.begin();
+    for (auto i = 0u; i < tangents.size(); ++i)
+    {
+        if (assignments_iter == edge_assignments.end())
+        {
+            break;
+        }
+
+        // while the current edge lies in the interval on the path
+        // implied by the tangent
+        while (assignments_iter != edge_assignments.end() &&
+               assignments_iter->first.second <= tangents[i].last)
+        {
+            BOOST_ASSERT(assignments_iter->first.first >= tangents[i].first);
+            BOOST_ASSERT(points_begin_idx + assignments_iter->second < points->size());
+            assignments.emplace_back(points->at(points_begin_idx + assignments_iter->second), i);
+        }
+    }
 
     return assignments;
 }
