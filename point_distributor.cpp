@@ -47,6 +47,8 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                 [](const std::size_t& point_idx) {},
                 [this, num_vertices, i, vertex_angles, &state](const std::size_t& vertex_idx)
                 {
+                   // insert edge to the next vertex
+                   // ignores last vertex because there is no neighbour
                    if (vertex_idx < num_vertices)
                    {
                        // next edge goes down -> new to sweep line
@@ -60,7 +62,8 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                            state.remove_edge(sweepline_state::edge {vertex_idx + i + 1, vertex_idx + i + 2});
                        }
                    }
-                   // ignore second vertices because edges to first vertex are always on the sweepline
+                   // insert edge to previous vertex
+                   // ignores the first and also the second vertices because edges to first vertex are always on the sweepline
                    if (vertex_idx > 1)
                    {
                        // previous edge goes down -> new to sweep line

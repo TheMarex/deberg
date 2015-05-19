@@ -58,12 +58,23 @@ sweepline_state::edge_iterator sweepline_state::get_first_intersecting(const coo
                                     //    1----2      1
                                     //       p       p \
                                     //                  2
-                                    // in this case locally left-of also means globally left-of
                                     BOOST_ASSERT(lhs.first < lhs.second);
-                                    return geometry::position_to_line(coordinates[lhs.first],
-                                                                      coordinates[lhs.second],
-                                                                      rhs)
-                                        == geometry::point_position::LEFT_OF_LINE;
+                                    BOOST_ASSERT(coordinates[lhs.first].x <= coordinates[lhs.second].x);
+                                    auto p1 = coordinates[lhs.first];
+                                    auto p2 = coordinates[lhs.second];
+                                    auto position = geometry::position_to_line(p1, p2, rhs);
+
+                                    // FIXME if a point is on a line, it belongs to both facets
+                                    BOOST_ASSERT(position != geometry::point_position::ON_LINE);
+
+                                    if (p1.y <= p2.y)
+                                    {
+                                        return position == geometry::point_position::RIGHT_OF_LINE;
+                                    }
+                                    else
+                                    {
+                                        return position == geometry::point_position::LEFT_OF_LINE;
+                                    }
                                  });
     return iter;
 }

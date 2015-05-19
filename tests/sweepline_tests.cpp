@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(insert_test)
     //                    1
     //    0              /
     //   / \            /
-    //  / a \          /   b
+    //  / a \          /  b
     // x     2  3     /
     //       | / \ c /
     //       |/   \ /
@@ -31,6 +31,11 @@ BOOST_AUTO_TEST_CASE(insert_test)
         coordinate {5, 2}   // 6
     };
 
+    coordinate a {0.5, 0.5};
+    coordinate b {5, 0.5};
+    coordinate c {3.75, -0.5};
+    coordinate point_on_line {3.5, -0.5};
+
     sweepline_state state(coords);
 
     // process 1
@@ -39,12 +44,19 @@ BOOST_AUTO_TEST_CASE(insert_test)
     BOOST_CHECK_EQUAL(state.intersecting_edges.size(), 1);
     BOOST_CHECK_EQUAL(state.intersecting_edges[0], (sweepline_state::edge {1, 2}));
 
+    // process a
+    BOOST_CHECK(state.get_first_intersecting(a) != state.intersecting_edges.end());
+    BOOST_CHECK_EQUAL(*state.get_first_intersecting(a), (sweepline_state::edge {1, 2}));
+
     // process 6
     state.insert_edge(sweepline_state::edge {5, 6});
 
     BOOST_CHECK_EQUAL(state.intersecting_edges.size(), 2);
     BOOST_CHECK_EQUAL(state.intersecting_edges[0], (sweepline_state::edge {1, 2}));
     BOOST_CHECK_EQUAL(state.intersecting_edges[1], (sweepline_state::edge {5, 6}));
+
+    // process b
+    BOOST_CHECK(state.get_first_intersecting(b) == state.intersecting_edges.end());
 
     // process 2
     state.remove_edge(sweepline_state::edge {1, 2});
@@ -64,13 +76,22 @@ BOOST_AUTO_TEST_CASE(insert_test)
     BOOST_CHECK_EQUAL(state.intersecting_edges[2], (sweepline_state::edge {4, 5}));
     BOOST_CHECK_EQUAL(state.intersecting_edges[3], (sweepline_state::edge {5, 6}));
 
+    // process c
+    BOOST_CHECK(state.get_first_intersecting(c) != state.intersecting_edges.end());
+    BOOST_CHECK_EQUAL(*state.get_first_intersecting(c), (sweepline_state::edge {5, 6}));
+
+    // FIXME This fails because we assume that points don't lie on lines
+    // BOOST_CHECK(state.get_first_intersecting(point_on_line) != state.intersecting_edges.end());
+    // BOOST_CHECK_EQUAL(*state.get_first_intersecting(point_on_line), (sweepline_state::edge {5, 6}));
+
     // process 3
     state.remove_edge(sweepline_state::edge {3, 4});
     state.remove_edge(sweepline_state::edge {2, 3});
 
+
     BOOST_CHECK_EQUAL(state.intersecting_edges.size(), 2);
-    BOOST_CHECK_EQUAL(state.intersecting_edges[2], (sweepline_state::edge {4, 5}));
-    BOOST_CHECK_EQUAL(state.intersecting_edges[3], (sweepline_state::edge {5, 6}));
+    BOOST_CHECK_EQUAL(state.intersecting_edges[0], (sweepline_state::edge {4, 5}));
+    BOOST_CHECK_EQUAL(state.intersecting_edges[1], (sweepline_state::edge {5, 6}));
 
     // process 5
     state.remove_edge(sweepline_state::edge {5, 6});
