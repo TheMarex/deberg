@@ -57,8 +57,8 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                 [this, num_vertices, i, &vertex_angles, &state](const std::size_t& vertex_idx)
                 {
                    // insert edge to the next vertex
-                   // ignores last vertex because there is no neighbour
-                   if (vertex_idx < num_vertices)
+                   // ignores last vertex because there is no next vertex
+                   if (vertex_idx < num_vertices - 1)
                    {
                        // next edge goes down -> new to sweep line
                        if (vertex_angles[vertex_idx + 1] < vertex_angles[vertex_idx])
@@ -116,6 +116,8 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
         }
     }
 
+    // TODO filter assignment so we only have the maximal/minimal point per facet
+
     return assignments;
 }
 
@@ -140,6 +142,7 @@ void point_distributor::prepare_points(std::vector<point>& points,
                      return p.location;
                    });
 
+    right_of_vertex_index.resize(line.coordinates.size());
     for (unsigned points_idx = 0, vertex_idx = 0;
         vertex_idx < line.coordinates.size();)
     {

@@ -10,13 +10,14 @@
 
 class point_distributor
 {
+public:
     using point_assignment = std::pair<point, unsigned>;
 
     point_distributor(const poly_line& original_line, std::unique_ptr<std::vector<point>> points)
         : line(original_line)
         , points(std::move(points))
     {
-        prepare_points(*points, right_of_vertex_index, point_coordinates);
+        prepare_points(*(this->points), right_of_vertex_index, point_coordinates);
     }
 
     std::vector<point_assignment> operator()(unsigned i, const std::vector<shortcut>& tangents) const;

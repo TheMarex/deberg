@@ -31,6 +31,7 @@ struct shortcut
 
     unsigned first;
     unsigned last;
+    /// number of the edge along the path
     unsigned split_edge;
     type classification;
 };

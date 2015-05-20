@@ -12,7 +12,10 @@ bool sweepline_state::edge_comparator(const sweepline_state::edge& lhs, const sw
     auto lhs_x = std::max(coordinates[lhs.first].x, coordinates[lhs.second].x);
     auto rhs_x = std::max(coordinates[rhs.first].x, coordinates[rhs.second].x);
 
-    return lhs_x < rhs_x;
+    return (lhs_x != rhs_x) ?
+        lhs_x < rhs_x :
+        (std::min(coordinates[lhs.first].x, coordinates[lhs.second].x) <
+         std::min(coordinates[rhs.first].x, coordinates[rhs.second].x));
 }
 
 void sweepline_state::insert_edge(const sweepline_state::edge& to_insert)

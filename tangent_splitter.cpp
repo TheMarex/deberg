@@ -6,11 +6,9 @@
 #include <algorithm>
 #include <boost/assert.hpp>
 
-/**
- * Returns all maximal and minimal tangents that bound a facette.
- * Each tangent stores the idx of the edge that splits the half-line starting
- * at i, or NO_EGDE_ID if the tangent is not split.
- */
+/// Returns all maximal and minimal tangents that bound a facette.
+/// Each tangent stores the idx of the edge that splits the half-line starting
+/// at i, or NO_EGDE_ID if the tangent is not split.
 std::vector<shortcut> tangent_splitter::operator()(unsigned i) const
 {
     auto number_of_tangents = line.coordinates.size() - i;
