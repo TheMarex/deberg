@@ -65,6 +65,27 @@ namespace geometry
         return point_position::ON_LINE;
     }
 
+    /// returns an angle beteen 0 and 2*M_PI
+    inline float normalize_angle(float angle)
+    {
+        float normalized = angle;
+        while (normalized < 0) normalized      += 2*M_PI;
+        while (normalized > 2*M_PI) normalized -= 2*M_PI;
+
+        return normalized;
+    }
+
+    /// returns the shortest angle between two vectors with the given angles
+    inline float angle_diff(float first_angle, float second_angle)
+    {
+        float diff = std::abs(normalize_angle(first_angle) - normalize_angle(second_angle));
+        if (diff > M_PI)
+        {
+            diff = diff - M_PI;
+        }
+        return diff;
+    }
+
     /// returns angles of the coordinates around the origin
     template<typename ForwardIter>
     inline std::vector<float> compute_angles_around_origin(const coordinate& origin,
@@ -78,8 +99,6 @@ namespace geometry
                        {
                            auto diff_vector = coord - origin;
                            auto angle = atan2(diff_vector.y, diff_vector.x);
-                           if (angle < 0)
-                               angle += 2*M_PI;
                            return angle;
                        });
 

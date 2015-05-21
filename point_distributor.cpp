@@ -41,9 +41,11 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
     // this implements a rotating sweep line algorithm
     util::merge(point_permutation.begin(), point_permutation.end(),
                 vertex_permutation.begin(), vertex_permutation.end(),
-                [&point_angles, &vertex_angles](const std::size_t lhs, const std::size_t rhs)
+                [&point_angles, &vertex_angles](const std::size_t lhs_idx, const std::size_t rhs_idx)
                 {
-                    return point_angles[lhs] > point_angles[rhs];
+                    BOOST_ASSERT(lhs_idx < point_angles.size());
+                    BOOST_ASSERT(rhs_idx < vertex_angles.size());
+                    return point_angles[lhs_idx] > vertex_angles[rhs_idx];
                 },
                 [this, points_begin_idx, &edge_assignments, &state](const std::size_t& point_idx)
                 {
@@ -113,6 +115,8 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
             BOOST_ASSERT(assignments_iter->first.first >= tangents[i].first);
             BOOST_ASSERT(points_begin_idx + assignments_iter->second < points->size());
             assignments.emplace_back(points->at(points_begin_idx + assignments_iter->second), i);
+
+            ++assignments_iter;
         }
     }
 

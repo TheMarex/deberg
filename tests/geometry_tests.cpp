@@ -42,6 +42,24 @@ BOOST_AUTO_TEST_CASE(position_to_line_test)
     BOOST_CHECK_EQUAL(geometry::position_to_line(coordinate {0, 0}, coordinate {-1, -1}, coordinate {-2, -2}), geometry::point_position::ON_LINE);
 }
 
+BOOST_AUTO_TEST_CASE(normalized_angle)
+{
+    const float epsilon = 0.001f;
+    BOOST_CHECK(std::abs(geometry::normalize_angle(-M_PI) - M_PI) < epsilon);
+    BOOST_CHECK(std::abs(geometry::normalize_angle(M_PI) - M_PI) < epsilon);
+}
+
+BOOST_AUTO_TEST_CASE(angle_diff_test)
+{
+    const float epsilon = 0.001f;
+    BOOST_CHECK(geometry::angle_diff(-M_PI, M_PI) < epsilon);
+    BOOST_CHECK(geometry::angle_diff(M_PI, -M_PI) < epsilon);
+    BOOST_CHECK(geometry::angle_diff(-M_PI_2, 3*M_PI_2) < epsilon);
+    BOOST_CHECK(geometry::angle_diff(3*M_PI_2, -M_PI_2) < epsilon);
+    BOOST_CHECK(std::abs(geometry::angle_diff(M_PI/4, -M_PI/4) - M_PI_2) < epsilon);
+    BOOST_CHECK(std::abs(geometry::angle_diff(-M_PI/4, M_PI/4) - M_PI_2) < epsilon);
+}
+
 BOOST_AUTO_TEST_CASE(compute_angles_around_origin_test)
 {
     //        5
@@ -61,10 +79,10 @@ BOOST_AUTO_TEST_CASE(compute_angles_around_origin_test)
     };
 
     std::vector<float> correct_angles {
-        7/4.0 * M_PI,
-        6/4.0 * M_PI,
-        5/4.0 * M_PI,
-        4/4.0 * M_PI,
+        -1/4.0 * M_PI,
+        -2/4.0 * M_PI,
+        -3/4.0 * M_PI,
+        -4/4.0 * M_PI,
         3/4.0 * M_PI,
         2/4.0 * M_PI,
         1/4.0 * M_PI,
@@ -75,7 +93,7 @@ BOOST_AUTO_TEST_CASE(compute_angles_around_origin_test)
     BOOST_CHECK_EQUAL(correct_angles.size(), angles_zero.size());
     for (unsigned i = 0; i < angles_zero.size(); i++)
     {
-        BOOST_CHECK(std::abs(correct_angles[i] - angles_zero[i]) < 0.01);
+        BOOST_CHECK(geometry::angle_diff(correct_angles[i], angles_zero[i]) < 0.01f);
     }
 
     std::transform(coordinates.begin(), coordinates.end(), coordinates.begin(),
@@ -84,7 +102,7 @@ BOOST_AUTO_TEST_CASE(compute_angles_around_origin_test)
     BOOST_CHECK_EQUAL(correct_angles.size(), angles_offset.size());
     for (unsigned i = 0; i < angles_offset.size(); i++)
     {
-        BOOST_CHECK(std::abs(correct_angles[i] - angles_offset[i]) < 0.01);
+        BOOST_CHECK(geometry::angle_diff(correct_angles[i], angles_offset[i]) < 0.01f);
     }
 }
 

@@ -66,12 +66,12 @@ void merge(ForwardIter1 begin_first,  ForwardIter1 end_first,
         if (cmp(*iter_first, *iter_second))
         {
             op_first(*iter_first);
-            iter_first++;
+            ++iter_first;
         }
         else
         {
             op_second(*iter_second);
-            iter_second++;
+            ++iter_second;
         }
     }
     while (iter_first != end_first)
