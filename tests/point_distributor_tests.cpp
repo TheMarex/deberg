@@ -12,14 +12,14 @@ BOOST_AUTO_TEST_SUITE(point_distributor_tests)
 
 BOOST_AUTO_TEST_CASE(example)
 {
-    //                    6
-    //    1              /
-    //   / \            /
-    //  /(0)\          /(1)
-    // 0     2  4     /
-    //       | / \(2)/
-    //       |/   \ /
-    //       3     5
+    //                      6
+    //    1                /
+    //   / \              /
+    //  /(0)\            /(1)
+    // 0 (4) 2  4       /
+    //       | / \ (2) /
+    //       |/   \(3)/
+    //       3      5
     poly_line line {0,
         std::vector<coordinate> {
             coordinate {0, 0},
@@ -35,7 +35,9 @@ BOOST_AUTO_TEST_CASE(example)
     auto points = std::unique_ptr<std::vector<point>>(new std::vector<point> {
         point {0u, coordinate {0.5, 0.5}},
         point {1u, coordinate {5, 0.5}},
-        point {2u, coordinate {3.75, -0.5}}
+        point {2u, coordinate {3.75, -0.6}},
+        point {3u, coordinate {3.75, -0.5}},
+        point {4u, coordinate {0.5, 0}}
     });
 
     std::vector<shortcut> tangents_from_first {
@@ -49,9 +51,9 @@ BOOST_AUTO_TEST_CASE(example)
     auto assignments = distributor(0, tangents_from_first);
 
     BOOST_CHECK_EQUAL(assignments.size(), 2);
-    BOOST_CHECK_EQUAL(assignments[0].first.id, 0);
+    BOOST_CHECK_EQUAL(assignments[0].first.id, 4);
     BOOST_CHECK_EQUAL(assignments[0].second, 0);
-    BOOST_CHECK_EQUAL(assignments[1].first.id, 2);
+    BOOST_CHECK_EQUAL(assignments[1].first.id, 3);
     BOOST_CHECK_EQUAL(assignments[1].second, 3);
 }
 

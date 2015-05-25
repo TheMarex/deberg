@@ -100,27 +100,60 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
 
     // we assume that the tangents are already sorted by the end vertex
     auto assignments_iter = edge_assignments.begin();
-    for (auto i = 0u; i < tangents.size(); ++i)
+    for (auto tangent_idx = 0u; tangent_idx < tangents.size(); ++tangent_idx)
     {
         if (assignments_iter == edge_assignments.end())
         {
             break;
         }
 
+        point_assignment tangent_assignment;
+        bool has_assignment = false;
+        float point_angle;
+
         // while the current edge lies in the interval on the path
         // implied by the tangent
         while (assignments_iter != edge_assignments.end() &&
-               assignments_iter->first.second <= tangents[i].last)
+               assignments_iter->first.second <= tangents[tangent_idx].last)
         {
-            BOOST_ASSERT(assignments_iter->first.first >= tangents[i].first);
-            BOOST_ASSERT(points_begin_idx + assignments_iter->second < points->size());
-            assignments.emplace_back(points->at(points_begin_idx + assignments_iter->second), i);
+            auto point_idx = assignments_iter->second;
+
+            BOOST_ASSERT(assignments_iter->first.first >= tangents[tangent_idx].first);
+            BOOST_ASSERT(points_begin_idx + point_idx< points->size());
+
+            // only chose the point with minimal/maximal angle
+            if (tangents[tangent_idx].classification == shortcut::type::MINIMAL_TANGENT)
+            {
+                // bigger in clockwise direction
+                if (!has_assignment || point_angles[point_idx] < point_angle)
+                {
+                    tangent_assignment = point_assignment(points->at(points_begin_idx + point_idx), tangent_idx);
+                    point_angle = point_angles[point_idx];
+                    has_assignment = true;
+                }
+            }
+            else
+            {
+                BOOST_ASSERT(tangents[tangent_idx].classification == shortcut::type::MAXIMAL_TANGENT);
+
+                // smaller in clockwise direction
+                if (!has_assignment || point_angles[point_idx] > point_angle)
+                {
+                    tangent_assignment = point_assignment(points->at(points_begin_idx + point_idx), tangent_idx);
+                    point_angle = point_angles[point_idx];
+                    has_assignment = true;
+                }
+            }
 
             ++assignments_iter;
         }
-    }
 
-    // TODO filter assignment so we only have the maximal/minimal point per facet
+        if (has_assignment)
+        {
+            assignments.push_back(tangent_assignment);
+        }
+
+    }
 
     return assignments;
 }
