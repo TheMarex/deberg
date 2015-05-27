@@ -3,6 +3,8 @@
 
 #include "point.hpp"
 
+#include <boost/assert.hpp>
+
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -86,23 +88,19 @@ namespace geometry
         return diff;
     }
 
-    /// returns angles of the coordinates around the origin
-    template<typename ForwardIter>
-    inline std::vector<float> compute_angles_around_origin(const coordinate& origin,
-                                                            ForwardIter begin,
-                                                            ForwardIter end)
+    /// compares the slope of origin -> lhs and origin -> rhs and returns true
+    /// if the slope of lhs is bigger than rhs.
+    inline bool slope_compare(const coordinate& origin, const coordinate& lhs, const coordinate& rhs)
     {
-        unsigned size = std::distance(begin, end);
-        std::vector<float> angles(size);
-        std::transform(begin, end, angles.begin(),
-                       [&origin](const coordinate& coord)
-                       {
-                           auto diff_vector = coord - origin;
-                           auto angle = atan2(diff_vector.y, diff_vector.x);
-                           return angle;
-                       });
+        BOOST_ASSERT(lhs.x >= origin.x);
+        BOOST_ASSERT(rhs.x >= origin.x);
 
-        return angles;
+        auto position = position_to_line(origin, lhs, rhs);
+
+        return position == point_position::RIGHT_OF_LINE ||
+              (position == point_position::ON_LINE &&
+               // origin -> rhs points in opposite direction
+               glm::dot(lhs - origin, rhs - origin) < 0);
     }
 
 };

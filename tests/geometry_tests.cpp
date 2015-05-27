@@ -60,50 +60,31 @@ BOOST_AUTO_TEST_CASE(angle_diff_test)
     BOOST_CHECK(std::abs(geometry::angle_diff(-M_PI/4, M_PI/4) - M_PI_2) < epsilon);
 }
 
-BOOST_AUTO_TEST_CASE(compute_angles_around_origin_test)
+BOOST_AUTO_TEST_CASE(slope_compare_test)
 {
-    //        5
-    //     4     6
-    //   3    x    7
-    //     2     0
-    //        1
+    // 0
+    //    1
+    // x    2
+    //    3
+    // 4
     std::vector<coordinate> coordinates {
-        coordinate {0.5, -0.5},
-        coordinate {0, -1},
-        coordinate {-0.5, -0.5},
-        coordinate {-1.0, -0},
-        coordinate {-0.5, 0.5},
         coordinate {0, 1},
         coordinate {0.5, 0.5},
         coordinate {1.0, 0.0},
+        coordinate {0.5, -0.5},
+        coordinate {0, -1},
     };
 
-    std::vector<float> correct_angles {
-        -1/4.0 * M_PI,
-        -2/4.0 * M_PI,
-        -3/4.0 * M_PI,
-        -4/4.0 * M_PI,
-        3/4.0 * M_PI,
-        2/4.0 * M_PI,
-        1/4.0 * M_PI,
-        0,
-    };
+    coordinate origin {0, 0};
 
-    auto angles_zero = geometry::compute_angles_around_origin(coordinate {0, 0}, coordinates.begin(), coordinates.end());
-    BOOST_CHECK_EQUAL(correct_angles.size(), angles_zero.size());
-    for (unsigned i = 0; i < angles_zero.size(); i++)
+    for (auto i = 0u; i < coordinates.size(); ++i)
     {
-        BOOST_CHECK(geometry::angle_diff(correct_angles[i], angles_zero[i]) < 0.01f);
+        for (auto j = i+1; j < coordinates.size(); ++j)
+        {
+            BOOST_CHECK(geometry::slope_compare(origin, coordinates[i], coordinates[j]));
+        }
     }
 
-    std::transform(coordinates.begin(), coordinates.end(), coordinates.begin(),
-                   [](const coordinate& c) { return c + coordinate {1, 1}; });
-    auto angles_offset = geometry::compute_angles_around_origin(coordinate {1, 1}, coordinates.begin(), coordinates.end());
-    BOOST_CHECK_EQUAL(correct_angles.size(), angles_offset.size());
-    for (unsigned i = 0; i < angles_offset.size(); i++)
-    {
-        BOOST_CHECK(geometry::angle_diff(correct_angles[i], angles_offset[i]) < 0.01f);
-    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

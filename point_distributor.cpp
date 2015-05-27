@@ -14,22 +14,16 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
 
     const coordinate& origin = line.coordinates[i];
 
-    auto reverse_compare = [](const float lhs, const float rhs) { return lhs > rhs; };
 
     unsigned points_begin_idx = right_of_vertex_index[i];
-    auto point_angles = geometry::compute_angles_around_origin(origin,
-                                                               point_coordinates.begin() + points_begin_idx,
-                                                               point_coordinates.end());
-    auto point_permutation = util::compute_permutation(point_angles.begin(), point_angles.end(),
+    auto point_permutation = util::compute_permutation(point_coordinates.begin() + points_begin_idx, point_coordinates.end(),
                                                        // sort clockwise -> angles decreasing
-                                                       reverse_compare);
+                                                       [&origin](const coordinate& lhs, const coordinate& rhs) { return geometry::slope_compare(origin, lhs, rhs); });
 
-    auto vertex_angles = geometry::compute_angles_around_origin(origin,
-                                                                line.coordinates.begin() + i + 1,
-                                                                line.coordinates.end());
-    auto vertex_permutation = util::compute_permutation(vertex_angles.begin(), vertex_angles.end(),
+    unsigned vertex_begin_idx = i + 1;
+    auto vertex_permutation = util::compute_permutation(line.coordinates.begin() + vertex_begin_idx, line.coordinates.end(),
                                                        // sort clockwise -> angles decreasing
-                                                       reverse_compare);
+                                                       [&origin](const coordinate& lhs, const coordinate& rhs) { return geometry::slope_compare(origin, lhs, rhs); });
 
     auto num_vertices = vertex_permutation.size();
 
@@ -41,11 +35,13 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
     // this implements a rotating sweep line algorithm
     util::merge(point_permutation.begin(), point_permutation.end(),
                 vertex_permutation.begin(), vertex_permutation.end(),
-                [&point_angles, &vertex_angles](const std::size_t lhs_idx, const std::size_t rhs_idx)
+                [this, &origin, points_begin_idx, vertex_begin_idx](const std::size_t lhs_idx, const std::size_t rhs_idx)
                 {
-                    BOOST_ASSERT(lhs_idx < point_angles.size());
-                    BOOST_ASSERT(rhs_idx < vertex_angles.size());
-                    return point_angles[lhs_idx] > vertex_angles[rhs_idx];
+                    unsigned abs_lhs_idx = lhs_idx + points_begin_idx;
+                    unsigned abs_rhs_idx = rhs_idx + vertex_begin_idx;
+                    BOOST_ASSERT(abs_lhs_idx < point_coordinates.size());
+                    BOOST_ASSERT(abs_rhs_idx < line.coordinates.size());
+                    return geometry::slope_compare(origin, point_coordinates[abs_lhs_idx], line.coordinates[abs_rhs_idx]);
                 },
                 [this, points_begin_idx, &edge_assignments, &state](const std::size_t& point_idx)
                 {
@@ -56,21 +52,21 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                         edge_assignments.emplace_back(*edge_iter, point_idx);
                     }
                 },
-                [this, num_vertices, i, &vertex_angles, &state](const std::size_t& vertex_idx)
+                [this, num_vertices, vertex_begin_idx, &origin, &state](const std::size_t& vertex_idx)
                 {
                    // insert edge to the next vertex
                    // ignores last vertex because there is no next vertex
                    if (vertex_idx < num_vertices - 1)
                    {
                        // next edge goes down -> new to sweep line
-                       if (vertex_angles[vertex_idx + 1] < vertex_angles[vertex_idx])
+                       if (geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_idx], line.coordinates[vertex_begin_idx + vertex_idx + 1]))
                        {
-                           state.insert_edge(sweepline_state::edge {vertex_idx + i + 1, vertex_idx + i + 2});
+                           state.insert_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx, vertex_begin_idx + vertex_idx + 1});
                        }
                        // edge goes up -> does not intersect anymore
                        else
                        {
-                           state.remove_edge(sweepline_state::edge {vertex_idx + i + 1, vertex_idx + i + 2});
+                           state.remove_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx, vertex_begin_idx + vertex_idx + 1});
                        }
                    }
                    // insert edge to previous vertex
@@ -78,14 +74,14 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                    if (vertex_idx > 1)
                    {
                        // previous edge goes down -> new to sweep line
-                       if (vertex_angles[vertex_idx - 1] < vertex_angles[vertex_idx])
+                       if (geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_idx], line.coordinates[vertex_begin_idx + vertex_idx - 1]))
                        {
-                           state.insert_edge(sweepline_state::edge {vertex_idx + i, vertex_idx + i + 1});
+                           state.insert_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx - 1, vertex_begin_idx + vertex_idx});
                        }
                        // edge goes up -> does not intersect anymore
                        else
                        {
-                           state.remove_edge(sweepline_state::edge {vertex_idx + i, vertex_idx + i + 1});
+                           state.remove_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx - 1, vertex_begin_idx + vertex_idx});
                        }
                    }
                 });
@@ -109,7 +105,6 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
 
         point_assignment tangent_assignment;
         bool has_assignment = false;
-        float point_angle;
 
         // while the current edge lies in the interval on the path
         // implied by the tangent
@@ -125,10 +120,11 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
             if (tangents[tangent_idx].classification == shortcut::type::MINIMAL_TANGENT)
             {
                 // bigger in clockwise direction
-                if (!has_assignment || point_angles[point_idx] < point_angle)
+                if (!has_assignment ||
+                    geometry::slope_compare(origin, tangent_assignment.first.location,
+                                            point_coordinates[points_begin_idx + point_idx]))
                 {
                     tangent_assignment = point_assignment(points->at(points_begin_idx + point_idx), tangent_idx);
-                    point_angle = point_angles[point_idx];
                     has_assignment = true;
                 }
             }
@@ -137,10 +133,11 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                 BOOST_ASSERT(tangents[tangent_idx].classification == shortcut::type::MAXIMAL_TANGENT);
 
                 // smaller in clockwise direction
-                if (!has_assignment || point_angles[point_idx] > point_angle)
+                if (!has_assignment ||
+                    geometry::slope_compare(origin, point_coordinates[points_begin_idx + point_idx],
+                                            tangent_assignment.first.location))
                 {
                     tangent_assignment = point_assignment(points->at(points_begin_idx + point_idx), tangent_idx);
-                    point_angle = point_angles[point_idx];
                     has_assignment = true;
                 }
             }
@@ -152,7 +149,6 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
         {
             assignments.push_back(tangent_assignment);
         }
-
     }
 
     return assignments;
