@@ -25,6 +25,14 @@ struct shortcut
                  classification(type::UNDEFINED)
     {}
 
+    shortcut(unsigned first, unsigned last) :
+        first(first),
+        last(last),
+        split_edge(NO_EDGE_ID),
+        classification(type::UNDEFINED)
+    {}
+
+
     shortcut(unsigned first, unsigned last, unsigned split_edge, shortcut::type classification)
         : first(first), last(last), split_edge(split_edge), classification(classification)
     {}

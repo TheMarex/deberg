@@ -16,75 +16,84 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
 
 
     unsigned points_begin_idx = right_of_vertex_index[i];
-    auto point_permutation = util::compute_permutation(point_coordinates.begin() + points_begin_idx, point_coordinates.end(),
+    auto point_odering = util::compute_odering(point_coordinates.begin() + points_begin_idx, point_coordinates.end(),
                                                        // sort clockwise -> angles decreasing
                                                        [&origin](const coordinate& lhs, const coordinate& rhs) { return geometry::slope_compare(origin, lhs, rhs); });
 
     unsigned vertex_begin_idx = i + 1;
-    auto vertex_permutation = util::compute_permutation(line.coordinates.begin() + vertex_begin_idx, line.coordinates.end(),
+    auto vertex_odering = util::compute_odering(line.coordinates.begin() + vertex_begin_idx, line.coordinates.end(),
                                                        // sort clockwise -> angles decreasing
                                                        [&origin](const coordinate& lhs, const coordinate& rhs) { return geometry::slope_compare(origin, lhs, rhs); });
 
-    auto num_vertices = vertex_permutation.size();
+    auto num_vertices = vertex_odering.size();
 
     sweepline_state state(line.coordinates);
 
     using edge_assignment = std::pair<sweepline_state::edge, unsigned>;
     std::vector<edge_assignment> edge_assignments;
 
+    auto point_vertex_compare =
+        [this, &origin, points_begin_idx, vertex_begin_idx](const std::size_t lhs_idx, const std::size_t rhs_idx)
+        {
+            unsigned abs_lhs_idx = lhs_idx + points_begin_idx;
+            unsigned abs_rhs_idx = rhs_idx + vertex_begin_idx;
+            BOOST_ASSERT(abs_lhs_idx < point_coordinates.size());
+            BOOST_ASSERT(abs_rhs_idx < line.coordinates.size());
+            return geometry::slope_compare(origin, point_coordinates[abs_lhs_idx], line.coordinates[abs_rhs_idx]);
+        };
+
+    auto process_point =
+        [this, points_begin_idx, &edge_assignments, &state](const std::size_t& point_idx)
+        {
+            BOOST_ASSERT(points_begin_idx + point_idx < point_coordinates.size());
+            auto edge_iter = state.get_first_intersecting(point_coordinates[points_begin_idx + point_idx]);
+            if (edge_iter != state.intersecting_edges.end())
+            {
+                edge_assignments.emplace_back(*edge_iter, point_idx);
+            }
+        };
+
+    auto process_vertex =
+        [this, num_vertices, vertex_begin_idx, &origin, &state](const std::size_t& vertex_idx)
+        {
+            // insert edge to the next vertex
+            // ignores last vertex because there is no next vertex
+            if (vertex_idx < num_vertices - 1)
+            {
+                // next edge goes down -> new to sweep line
+                if (geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_idx], line.coordinates[vertex_begin_idx + vertex_idx + 1]))
+                {
+                    state.insert_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx, vertex_begin_idx + vertex_idx + 1});
+                }
+                // edge goes up -> does not intersect anymore
+                else
+                {
+                    state.remove_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx, vertex_begin_idx + vertex_idx + 1});
+                }
+            }
+            // insert edge to previous vertex
+            // ignores the first and also the second vertices because edges to first vertex are always on the sweepline
+            if (vertex_idx > 1)
+            {
+                // previous edge goes down -> new to sweep line
+                if (geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_idx], line.coordinates[vertex_begin_idx + vertex_idx - 1]))
+                {
+                    state.insert_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx - 1, vertex_begin_idx + vertex_idx});
+                }
+                // edge goes up -> does not intersect anymore
+                else
+                {
+                    state.remove_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx - 1, vertex_begin_idx + vertex_idx});
+                }
+            }
+        };
+
     // this implements a rotating sweep line algorithm
-    util::merge(point_permutation.begin(), point_permutation.end(),
-                vertex_permutation.begin(), vertex_permutation.end(),
-                [this, &origin, points_begin_idx, vertex_begin_idx](const std::size_t lhs_idx, const std::size_t rhs_idx)
-                {
-                    unsigned abs_lhs_idx = lhs_idx + points_begin_idx;
-                    unsigned abs_rhs_idx = rhs_idx + vertex_begin_idx;
-                    BOOST_ASSERT(abs_lhs_idx < point_coordinates.size());
-                    BOOST_ASSERT(abs_rhs_idx < line.coordinates.size());
-                    return geometry::slope_compare(origin, point_coordinates[abs_lhs_idx], line.coordinates[abs_rhs_idx]);
-                },
-                [this, points_begin_idx, &edge_assignments, &state](const std::size_t& point_idx)
-                {
-                    BOOST_ASSERT(points_begin_idx + point_idx < point_coordinates.size());
-                    auto edge_iter = state.get_first_intersecting(point_coordinates[points_begin_idx + point_idx]);
-                    if (edge_iter != state.intersecting_edges.end())
-                    {
-                        edge_assignments.emplace_back(*edge_iter, point_idx);
-                    }
-                },
-                [this, num_vertices, vertex_begin_idx, &origin, &state](const std::size_t& vertex_idx)
-                {
-                   // insert edge to the next vertex
-                   // ignores last vertex because there is no next vertex
-                   if (vertex_idx < num_vertices - 1)
-                   {
-                       // next edge goes down -> new to sweep line
-                       if (geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_idx], line.coordinates[vertex_begin_idx + vertex_idx + 1]))
-                       {
-                           state.insert_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx, vertex_begin_idx + vertex_idx + 1});
-                       }
-                       // edge goes up -> does not intersect anymore
-                       else
-                       {
-                           state.remove_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx, vertex_begin_idx + vertex_idx + 1});
-                       }
-                   }
-                   // insert edge to previous vertex
-                   // ignores the first and also the second vertices because edges to first vertex are always on the sweepline
-                   if (vertex_idx > 1)
-                   {
-                       // previous edge goes down -> new to sweep line
-                       if (geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_idx], line.coordinates[vertex_begin_idx + vertex_idx - 1]))
-                       {
-                           state.insert_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx - 1, vertex_begin_idx + vertex_idx});
-                       }
-                       // edge goes up -> does not intersect anymore
-                       else
-                       {
-                           state.remove_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx - 1, vertex_begin_idx + vertex_idx});
-                       }
-                   }
-                });
+    util::merge(point_odering.begin(), point_odering.end(),
+                vertex_odering.begin(), vertex_odering.end(),
+                point_vertex_compare,
+                process_point,
+                process_vertex);
 
     // sort assignments by index of first vertex of the edge
     // since these are path edge this will give us a sorting along the path

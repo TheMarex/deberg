@@ -8,20 +8,22 @@
 
 namespace util {
 
+/// returns a vector `ordering` where `odering[i]` is the index of the ith
+/// element when sorted regarding the comparator function
 template<typename ForwardRandomIter, typename Comparator>
-std::vector<std::size_t> compute_permutation(ForwardRandomIter begin, ForwardRandomIter end, Comparator cmp)
+std::vector<std::size_t> compute_odering(ForwardRandomIter begin, ForwardRandomIter end, Comparator cmp)
 {
     auto size = std::distance(begin, end);
-    std::vector<std::size_t> permuation(size);
-    std::iota(permuation.begin(), permuation.end(), 0);
+    std::vector<std::size_t> ordering(size);
+    std::iota(ordering.begin(), ordering.end(), 0);
 
-    std::stable_sort(permuation.begin(), permuation.end(),
+    std::stable_sort(ordering.begin(), ordering.end(),
                      [begin, end, cmp](const std::size_t lhs, const std::size_t rhs)
                      {
                      return cmp(*(begin + lhs), *(begin + rhs));
                      });
 
-    return permuation;
+    return ordering;
 }
 
 template<typename ForwardIter, typename ContainerT>
