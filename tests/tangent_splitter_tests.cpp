@@ -128,12 +128,12 @@ BOOST_AUTO_TEST_CASE(non_null_start)
 
 BOOST_AUTO_TEST_CASE(paper_example_test)
 {
-    /*    __2__            9
-     *   1     3          /
-     *  /      |         8
-     * 0       |    6   /
-     *         4   / \ /
-     *          \ /   7
+    /*    __2__               9
+     *   1     3             /
+     *  /      |            8
+     * 0       |    6      /
+     *         4   / \    /
+     *          \ /   `7 ´
      *           5
      */
     poly_line line;
@@ -151,25 +151,40 @@ BOOST_AUTO_TEST_CASE(paper_example_test)
     };
 
     tangent_splitter splitter(line);
-    auto tangents = splitter(0);
 
-    BOOST_CHECK_EQUAL(tangents.size(), 4);
-    BOOST_CHECK_EQUAL(tangents[0].first, 0);
-    BOOST_CHECK_EQUAL(tangents[0].last, 5);
-    BOOST_CHECK_EQUAL(tangents[0].classification, shortcut::type::MINIMAL_TANGENT);
-    BOOST_CHECK_EQUAL(tangents[0].split_edge, 1);
-    BOOST_CHECK_EQUAL(tangents[1].first, 0);
-    BOOST_CHECK_EQUAL(tangents[1].last, 6);
-    BOOST_CHECK_EQUAL(tangents[1].classification, shortcut::type::MAXIMAL_TANGENT);
-    BOOST_CHECK_EQUAL(tangents[1].split_edge, 4);
-    BOOST_CHECK_EQUAL(tangents[2].first, 0);
-    BOOST_CHECK_EQUAL(tangents[2].last, 7);
-    BOOST_CHECK_EQUAL(tangents[2].classification, shortcut::type::MINIMAL_TANGENT);
-    BOOST_CHECK_EQUAL(tangents[2].split_edge, 6);
-    BOOST_CHECK_EQUAL(tangents[3].first, 0);
-    BOOST_CHECK_EQUAL(tangents[3].last, 9);
-    BOOST_CHECK_EQUAL(tangents[3].classification, shortcut::type::MAXIMAL_TANGENT);
-    BOOST_CHECK_EQUAL(tangents[3].split_edge, 4);
+    auto first_tangents = splitter(0);
+    BOOST_CHECK_EQUAL(first_tangents.size(), 4);
+    BOOST_CHECK_EQUAL(first_tangents[0].first, 0);
+    BOOST_CHECK_EQUAL(first_tangents[0].last, 5);
+    BOOST_CHECK_EQUAL(first_tangents[0].classification, shortcut::type::MINIMAL_TANGENT);
+    BOOST_CHECK_EQUAL(first_tangents[0].split_edge, 1);
+    BOOST_CHECK_EQUAL(first_tangents[1].first, 0);
+    BOOST_CHECK_EQUAL(first_tangents[1].last, 6);
+    BOOST_CHECK_EQUAL(first_tangents[1].classification, shortcut::type::MAXIMAL_TANGENT);
+    BOOST_CHECK_EQUAL(first_tangents[1].split_edge, 4);
+    BOOST_CHECK_EQUAL(first_tangents[2].first, 0);
+    BOOST_CHECK_EQUAL(first_tangents[2].last, 7);
+    BOOST_CHECK_EQUAL(first_tangents[2].classification, shortcut::type::MINIMAL_TANGENT);
+    BOOST_CHECK_EQUAL(first_tangents[2].split_edge, 6);
+    BOOST_CHECK_EQUAL(first_tangents[3].first, 0);
+    BOOST_CHECK_EQUAL(first_tangents[3].last, 9);
+    BOOST_CHECK_EQUAL(first_tangents[3].classification, shortcut::type::MAXIMAL_TANGENT);
+    BOOST_CHECK_EQUAL(first_tangents[3].split_edge, 4);
+
+    auto fifth_tangents = splitter(4);
+    BOOST_CHECK_EQUAL(fifth_tangents.size(), 3);
+    BOOST_CHECK_EQUAL(fifth_tangents[0].first, 4);
+    BOOST_CHECK_EQUAL(fifth_tangents[0].last, 6);
+    BOOST_CHECK_EQUAL(fifth_tangents[0].classification, shortcut::type::MAXIMAL_TANGENT);
+    BOOST_CHECK_EQUAL(fifth_tangents[0].split_edge, 5);
+    BOOST_CHECK_EQUAL(fifth_tangents[1].first, 4);
+    BOOST_CHECK_EQUAL(fifth_tangents[1].last, 7);
+    BOOST_CHECK_EQUAL(fifth_tangents[1].classification, shortcut::type::MINIMAL_TANGENT);
+    BOOST_CHECK_EQUAL(fifth_tangents[1].split_edge, 6);
+    BOOST_CHECK_EQUAL(fifth_tangents[2].first, 4);
+    BOOST_CHECK_EQUAL(fifth_tangents[2].last, 9);
+    BOOST_CHECK_EQUAL(fifth_tangents[2].classification, shortcut::type::MAXIMAL_TANGENT);
+    BOOST_CHECK_EQUAL(fifth_tangents[2].split_edge, 7);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

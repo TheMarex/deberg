@@ -14,34 +14,34 @@ std::vector<shortcut> tangent_splitter::operator()(unsigned i) const
     auto number_of_tangents = line.coordinates.size() - i;
 
     std::vector<shortcut> tangents(number_of_tangents);
-    for (auto idx = 1u; idx < number_of_tangents; idx++)
-        tangents[idx] = shortcut {i, i+idx, NO_EDGE_ID, classify_shortcut(i, i+idx)};
-
     for (auto idx = 2u; idx < number_of_tangents; idx++)
     {
+        tangents[idx] = shortcut {i, i+idx, NO_EDGE_ID, classify_shortcut(i, i+idx)};
+
         if (tangents[idx].classification == shortcut::type::MAXIMAL_TANGENT
          || tangents[idx].classification == shortcut::type::MINIMAL_TANGENT)
         {
-            auto k = idx-1;
-            bool intersects;
-            do
+            auto prev_idx = idx - 1;
+            bool intersects = false;
+            while (!intersects && prev_idx > 1)
             {
-                intersects = geometry::segment_intersection(line.coordinates[i + k - 1],
-                                                            line.coordinates[i + k],
+                intersects = geometry::segment_intersection(line.coordinates[i + prev_idx - 1],
+                                                            line.coordinates[i + prev_idx],
                                                             line.coordinates[i],
                                                             line.coordinates[i + idx]);
-                if (!intersects && tangents[k].classification == tangents[idx].classification)
+
+                if (!intersects && tangents[prev_idx].classification == tangents[idx].classification)
                 {
-                    BOOST_ASSERT(k < idx);
-                    BOOST_ASSERT(k > 0);
-                    k = tangents[k].split_edge - i;
+                    BOOST_ASSERT(prev_idx < idx);
+                    BOOST_ASSERT(prev_idx > 0);
+                    prev_idx = tangents[prev_idx].split_edge - i;
                 }
                 else if (!intersects)
                 {
-                    k--;
+                    prev_idx--;
                 }
-            } while (!intersects && k >= 2);
-            tangents[idx].split_edge = i + k;
+            }
+            tangents[idx].split_edge = i + prev_idx;
         }
     }
 
