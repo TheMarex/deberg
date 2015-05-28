@@ -13,17 +13,18 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
     std::vector<point_distributor::point_assignment> assignments;
 
     const coordinate& origin = line.coordinates[i];
-
+    auto slope_cmp = [&origin](const coordinate& lhs, const coordinate& rhs)
+                     {
+                          return geometry::slope_compare(origin, lhs, rhs);
+                     };
 
     unsigned points_begin_idx = right_of_vertex_index[i];
     auto point_odering = util::compute_odering(point_coordinates.begin() + points_begin_idx, point_coordinates.end(),
-                                                       // sort clockwise -> angles decreasing
-                                                       [&origin](const coordinate& lhs, const coordinate& rhs) { return geometry::slope_compare(origin, lhs, rhs); });
+                                               slope_cmp);
 
     unsigned vertex_begin_idx = i + 1;
     auto vertex_odering = util::compute_odering(line.coordinates.begin() + vertex_begin_idx, line.coordinates.end(),
-                                                       // sort clockwise -> angles decreasing
-                                                       [&origin](const coordinate& lhs, const coordinate& rhs) { return geometry::slope_compare(origin, lhs, rhs); });
+                                                slope_cmp);
 
     auto num_vertices = vertex_odering.size();
 
@@ -33,13 +34,13 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
     std::vector<edge_assignment> edge_assignments;
 
     auto point_vertex_compare =
-        [this, &origin, points_begin_idx, vertex_begin_idx](const std::size_t lhs_idx, const std::size_t rhs_idx)
+        [this, &slope_cmp, points_begin_idx, vertex_begin_idx](const std::size_t lhs_idx, const std::size_t rhs_idx)
         {
             unsigned abs_lhs_idx = lhs_idx + points_begin_idx;
             unsigned abs_rhs_idx = rhs_idx + vertex_begin_idx;
             BOOST_ASSERT(abs_lhs_idx < point_coordinates.size());
             BOOST_ASSERT(abs_rhs_idx < line.coordinates.size());
-            return geometry::slope_compare(origin, point_coordinates[abs_lhs_idx], line.coordinates[abs_rhs_idx]);
+            return slope_cmp(point_coordinates[abs_lhs_idx], line.coordinates[abs_rhs_idx]);
         };
 
     auto process_point =
@@ -128,10 +129,9 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
             // only chose the point with minimal/maximal angle
             if (tangents[tangent_idx].classification == shortcut::type::MINIMAL_TANGENT)
             {
-                // bigger in clockwise direction
+                // check if slope is smaller
                 if (!has_assignment ||
-                    geometry::slope_compare(origin, tangent_assignment.first.location,
-                                            point_coordinates[points_begin_idx + point_idx]))
+                    slope_cmp(point_coordinates[points_begin_idx + point_idx], tangent_assignment.first.location))
                 {
                     tangent_assignment = point_assignment(points->at(points_begin_idx + point_idx), tangent_idx);
                     has_assignment = true;
@@ -141,10 +141,9 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
             {
                 BOOST_ASSERT(tangents[tangent_idx].classification == shortcut::type::MAXIMAL_TANGENT);
 
-                // smaller in clockwise direction
+                // check if slope is bigger
                 if (!has_assignment ||
-                    geometry::slope_compare(origin, point_coordinates[points_begin_idx + point_idx],
-                                            tangent_assignment.first.location))
+                    slope_cmp(tangent_assignment.first.location, point_coordinates[points_begin_idx + point_idx]))
                 {
                     tangent_assignment = point_assignment(points->at(points_begin_idx + point_idx), tangent_idx);
                     has_assignment = true;

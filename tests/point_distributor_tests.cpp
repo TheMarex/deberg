@@ -51,9 +51,9 @@ BOOST_AUTO_TEST_CASE(example)
     auto assignments = distributor(0, tangents_from_first);
 
     BOOST_CHECK_EQUAL(assignments.size(), 2);
-    BOOST_CHECK_EQUAL(assignments[0].first.id, 4);
+    BOOST_CHECK_EQUAL(assignments[0].first.id, 0);
     BOOST_CHECK_EQUAL(assignments[0].second, 0);
-    BOOST_CHECK_EQUAL(assignments[1].first.id, 3);
+    BOOST_CHECK_EQUAL(assignments[1].first.id, 2);
     BOOST_CHECK_EQUAL(assignments[1].second, 3);
 }
 
