@@ -11,6 +11,8 @@ shortcut_acceptor::shortcut_acceptor(const poly_line& line) : line(line)
 {
 }
 
+/// Uses the list of min/max tangents to interfer the facette location
+/// assigements must be ordered by the facette number (index of the confining tangent)
 std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vector<shortcut>& tangents, const std::vector<point_assignment>& assignments) const
 {
     std::vector<shortcut> valid_shortcuts;
@@ -32,6 +34,8 @@ std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vecto
         const auto& tangent = tangents[tangent_idx];
 
         BOOST_ASSERT(assignment_iter->second >= tangent_idx);
+
+        // the current facette has a point assignment
         if (assignment_iter->second == tangent_idx)
         {
             BOOST_ASSERT(tangent.classification == shortcut::type::MAXIMAL_TANGENT ||
@@ -59,6 +63,7 @@ std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vecto
             assignment_iter++;
         }
 
+        // add all shortcuts onlong the line segment that belongs to the facette (if they are still in the queue)
         while (vertex_begin_idx + current_shortcut_idx < tangent.last)
         {
             if (vertex_deque.contains(current_shortcut_idx))
