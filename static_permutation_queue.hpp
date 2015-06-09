@@ -4,6 +4,7 @@
 #include <boost/assert.hpp>
 
 #include <vector>
+#include <iostream>
 
 /// Double ended queue that only supports deletion and lookup.
 /// Assumes that values come from the interval [0, size] (hence permutation).
@@ -14,11 +15,11 @@ class static_permuation_deque
 {
 public:
     using index_type = std::size_t;
-    static_permuation_deque(std::vector<index_type>&& elements)
-        : is_present(elements.size(), true)
-        , index(elements.size())
-        , elements(std::forward<decltype(elements)>(elements))
-        , begin(0), end(elements.size())
+    static_permuation_deque(std::vector<index_type>&& in_elements)
+        : is_present(in_elements.size(), true)
+        , index(in_elements.size())
+        , begin(0), end(in_elements.size())
+        , elements(std::forward<decltype(in_elements)>(in_elements))
     {
         for (auto i = 0u; i < elements.size(); ++i)
         {
@@ -58,13 +59,15 @@ public:
 
     void pop_back()
     {
-        is_present[end--] = false;
+        is_present[end-1] = false;
+        --end;
         BOOST_ASSERT(end >= begin);
     }
 
     void pop_front()
     {
-        is_present[begin++] = false;
+        is_present[begin] = false;
+        ++begin;
         BOOST_ASSERT(end >= begin);
     }
 
@@ -83,9 +86,9 @@ private:
 
     std::vector<bool> is_present;
     std::vector<index_type> index;
-    std::vector<index_type> elements;
     index_type begin;
     index_type end;
+    std::vector<index_type> elements;
 };
 
 #endif

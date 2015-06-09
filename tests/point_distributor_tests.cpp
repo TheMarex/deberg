@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(example)
     });
 
     std::vector<shortcut> tangents_from_first {
-        shortcut {0, 3, NO_EDGE_ID, shortcut::type::MINIMAL_TANGENT},
+        shortcut {0, 3, 1, shortcut::type::MINIMAL_TANGENT},
         shortcut {0, 4, 2, shortcut::type::MAXIMAL_TANGENT},
         shortcut {0, 5, 3, shortcut::type::MINIMAL_TANGENT},
         shortcut {0, 6, 1, shortcut::type::MAXIMAL_TANGENT},

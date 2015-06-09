@@ -16,6 +16,7 @@ inline std::ostream& operator<<(std::ostream& lhs, const coordinate& rhs)
 #endif
 
 #ifdef GEOMETRY_HPP
+
 namespace geometry {
 inline std::ostream& operator<<(std::ostream& lhs, const geometry::point_position& rhs)
 {

@@ -7,10 +7,16 @@
 
 #include <vector>
 #include <algorithm>
-#include <iostream>
 
 namespace geometry
 {
+    enum class point_position : char
+    {
+        LEFT_OF_LINE,
+        RIGHT_OF_LINE,
+        ON_LINE
+    };
+
     /**
      * Returns a vector that is orthogonal to the line implied by
      * first_line_point and second_line_point.
@@ -44,13 +50,6 @@ namespace geometry
 
         return (u >= 0 && u <= 1.0) && (t >= 0 && t <= 1.0);
     }
-
-    enum class point_position : char
-    {
-        LEFT_OF_LINE,
-        RIGHT_OF_LINE,
-        ON_LINE
-    };
 
     inline point_position position_to_line(const coordinate& first_line_point,
                                     const coordinate& second_line_point,

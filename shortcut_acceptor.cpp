@@ -2,7 +2,14 @@
 
 #include "static_permutation_queue.hpp"
 #include "geometry.hpp"
+#include "poly_line.hpp"
 #include "util.hpp"
+
+#include "tests/test_utils.hpp"
+
+shortcut_acceptor::shortcut_acceptor(const poly_line& line) : line(line)
+{
+}
 
 std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vector<shortcut>& tangents, const std::vector<point_assignment>& assignments) const
 {
@@ -10,45 +17,46 @@ std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vecto
 
     const auto& origin = line.coordinates.front();
 
-    unsigned vertex_begin_idx = i + 1;
+    unsigned vertex_begin_idx = i + 2;
     auto vertex_deque = static_permuation_deque(util::compute_odering(line.coordinates.begin() + vertex_begin_idx, line.coordinates.end(),
-                                                       // sort clockwise -> angles decreasing
-                                                       [&origin](const coordinate& lhs, const coordinate& rhs)
-                                                       {
-                                                           return geometry::slope_compare(origin, lhs, rhs);
-                                                       }
-                                                ));
+                                                   [&origin](const coordinate& lhs, const coordinate& rhs)
+                                                   {
+                                                       return geometry::slope_compare(origin, lhs, rhs);
+                                                   })
+                                               );
 
     unsigned current_shortcut_idx = 0;
-    for (const auto& assignment : assignments)
+    auto assignment_iter = assignments.begin();
+    for (auto tangent_idx = 0u; tangent_idx < tangents.size(); ++tangent_idx)
     {
-        BOOST_ASSERT(assignment.second < tangents.size());
+        const auto& tangent = tangents[tangent_idx];
 
-        const auto& tangent = tangents[assignment.second];
-        BOOST_ASSERT(tangent.classification == shortcut::type::MAXIMAL_TANGENT ||
-                     tangent.classification == shortcut::type::MINIMAL_TANGENT);
-
-        BOOST_ASSERT(tangent.last < line.coordinates.size());
-
-        if (tangents[assignment.second].classification == shortcut::type::MAXIMAL_TANGENT)
+        BOOST_ASSERT(assignment_iter->second >= tangent_idx);
+        if (assignment_iter->second == tangent_idx)
         {
-            while (!vertex_deque.empty() &&
-                   geometry::slope_compare(origin, line.coordinates[vertex_deque.front()], assignment.first.location))
+            BOOST_ASSERT(tangent.classification == shortcut::type::MAXIMAL_TANGENT ||
+                         tangent.classification == shortcut::type::MINIMAL_TANGENT);
+
+            BOOST_ASSERT(tangent.last < line.coordinates.size());
+
+            if (tangent.classification == shortcut::type::MAXIMAL_TANGENT)
             {
-                vertex_deque.pop_front();
-                BOOST_ASSERT(begin_valid_range < vertex_permutation.size());
-                BOOST_ASSERT(end_valid_range >= begin_valid_range);
+                while (!vertex_deque.empty() &&
+                       geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_deque.front()], assignment_iter->first.location))
+                {
+                    vertex_deque.pop_front();
+                }
             }
-        }
-        else
-        {
-            while (!vertex_deque.empty()&&
-                   geometry::slope_compare(origin, assignment.first.location, line.coordinates[vertex_deque.back()]))
+            else
             {
-                vertex_deque.pop_back();
-                BOOST_ASSERT(end_valid_range > 0);
-                BOOST_ASSERT(end_valid_range >= begin_valid_range);
+                while (!vertex_deque.empty()&&
+                       geometry::slope_compare(origin, assignment_iter->first.location, line.coordinates[vertex_begin_idx + vertex_deque.back()]))
+                {
+                    vertex_deque.pop_back();
+                }
             }
+
+            assignment_iter++;
         }
 
         while (vertex_begin_idx + current_shortcut_idx < tangent.last)
@@ -61,6 +69,8 @@ std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vecto
             current_shortcut_idx++;
         }
     }
+
+    BOOST_ASSERT(assignment_iter == assignments.end());
 
     return valid_shortcuts;
 }
