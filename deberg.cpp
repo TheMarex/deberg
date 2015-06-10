@@ -4,6 +4,8 @@
 #include "line_reader.hpp"
 #include "point_reader.hpp"
 #include "bb_point_filter.hpp"
+#include "static_graph.hpp"
+#include "topo_sort.hpp"
 
 #include <fstream>
 
@@ -21,9 +23,16 @@ std::vector<point> read_points(const std::string& point_file_path)
     return reader.read();
 }
 
-std::vector<std::vector<shortcut>> select_shortcuts(unsigned max_edges, const std::vector<poly_line>& lines, std::vector<std::vector<shortcut>>&& shortcuts)
+std::vector<std::vector<shortcut>> select_shortcuts(unsigned max_edges, const std::vector<poly_line>& lines, std::vector<std::vector<shortcut>>&& in_shortcut_lists)
 {
+    std::vector<std::vector<shortcut>> shortcut_lists(in_shortcut_lists);
     std::vector<std::vector<shortcut>> chosen;
+
+    for (auto i = 0u; i < shortcut_lists.size(); ++i)
+    {
+        static_graph<shortcut> shortcut_graph(lines[i].coordinates.size(), std::move(shortcut_lists[i]));
+        auto ordering = topo_sort(shortcut_graph);
+    }
 
     return chosen;
 }

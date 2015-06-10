@@ -45,9 +45,10 @@ BOOST_AUTO_TEST_CASE(example)
         point_distributor::point_assignment {point {point::NO_LINE_ID, 3u, coordinate {3.75, -0.5}}, 3},
     };
     auto first_accepted = acceptor(0, tangents_from_first, first_assignments);
-    BOOST_CHECK_EQUAL(first_accepted.size(), 2);
-    BOOST_CHECK_EQUAL(first_accepted[0].last, 2);
-    BOOST_CHECK_EQUAL(first_accepted[1].last, 4);
+    BOOST_CHECK_EQUAL(first_accepted.size(), 3);
+    BOOST_CHECK_EQUAL(first_accepted[0].last, 1);
+    BOOST_CHECK_EQUAL(first_accepted[1].last, 2);
+    BOOST_CHECK_EQUAL(first_accepted[2].last, 4);
 
     // from fourth vertex
     std::vector<shortcut> tangents_from_fourth {
@@ -58,7 +59,9 @@ BOOST_AUTO_TEST_CASE(example)
         point_distributor::point_assignment {point {point::NO_LINE_ID, 3u, coordinate {3.75, -0.5}}, 1},
     };
     auto fourth_accepted = acceptor(3, tangents_from_fourth, fourth_assignments);
-    BOOST_CHECK_EQUAL(fourth_accepted.size(), 1);
+    BOOST_CHECK_EQUAL(fourth_accepted.size(), 2);
+    BOOST_CHECK_EQUAL(fourth_accepted[0].last, 4);
+    BOOST_CHECK_EQUAL(fourth_accepted[1].last, 5);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

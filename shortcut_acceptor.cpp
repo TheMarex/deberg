@@ -13,13 +13,15 @@ shortcut_acceptor::shortcut_acceptor(const poly_line& line) : line(line)
 
 /// Uses the list of min/max tangents to interfer the facette location
 /// assigements must be ordered by the facette number (index of the confining tangent)
+/// Note the returned shortcuts always contain the edge (i, i+1).
+/// We need this to get a nice sequence of edges for the topological sorting step.
 std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vector<shortcut>& tangents, const std::vector<point_assignment>& assignments) const
 {
     std::vector<shortcut> valid_shortcuts;
 
     const auto& origin = line.coordinates.front();
 
-    unsigned vertex_begin_idx = i + 2;
+    unsigned vertex_begin_idx = i + 1;
     auto vertex_deque = static_permuation_deque(util::compute_odering(line.coordinates.begin() + vertex_begin_idx, line.coordinates.end(),
                                                    [&origin](const coordinate& lhs, const coordinate& rhs)
                                                    {

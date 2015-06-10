@@ -26,6 +26,18 @@ public:
         {
             auto transformed_points = transform_points(m.mono, points);
             auto monotone_shortcuts = simplify_monotone_line(m.line, transformed_points);
+
+            // fix up indices
+            for (auto& s : monotone_shortcuts)
+            {
+                s.first += m.begin_idx;
+                s.last  += m.begin_idx;
+
+                BOOST_ASSERT(s.first < m.end_idx);
+                BOOST_ASSERT(s.last < m.end_idx);
+            }
+
+            shortcuts.insert(shortcuts.end(), monotone_shortcuts.begin(), monotone_shortcuts.end());
         }
 
         return shortcuts;
