@@ -30,7 +30,8 @@ SET(TESTS_SOURCE
   tests/shortcut_acceptor_tests.cpp
   tests/static_permutation_queue_tests.cpp
   tests/point_filter_tests.cpp
-  tests/monotone_decomposition_tests.cpp)
+  tests/monotone_decomposition_tests.cpp
+  tests/static_graph_tests.cpp)
 SET(LIBRARY_SOURCE
   tangent_splitter.cpp
   point_distributor.cpp
