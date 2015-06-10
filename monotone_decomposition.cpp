@@ -7,16 +7,13 @@ monotone_decomposition::monoticity operator&(monotone_decomposition::monoticity 
     return static_cast<monotone_decomposition::monoticity>(static_cast<char>(lhs) & static_cast<char>(rhs));
 }
 
-poly_line monotone_decomposition::make_x_monotone_increasing(const poly_line& l, const monotone_subpath& subpath) const
+void monotone_decomposition::make_x_monotone_increasing(monotone_subpath& subpath) const
 {
     BOOST_ASSERT(subpath.mono != monoticity::INVALID);
 
-    poly_line line;
-    line.coordinates.insert(line.coordinates.end(), l.coordinates.begin() + subpath.begin_idx, l.coordinates.begin() + subpath.end_idx);
-
     if ((subpath.mono & monoticity::INCREASING_X) != monoticity::INVALID)
     {
-        return line;
+        return;
     }
 
     if ((subpath.mono & monoticity::DECREASING_X) == monoticity::INVALID)
@@ -25,33 +22,32 @@ poly_line monotone_decomposition::make_x_monotone_increasing(const poly_line& l,
         if ((subpath.mono & monoticity::INCREASING_Y) != monoticity::INVALID ||
             (subpath.mono & monoticity::DECREASING_Y) != monoticity::INVALID)
         {
-            for (unsigned i = 0; i < line.coordinates.size(); i++)
+            for (unsigned i = 0; i < subpath.line.coordinates.size(); i++)
             {
-                std::swap(line.coordinates[i].y, line.coordinates[i].x);
+                std::swap(subpath.line.coordinates[i].y, subpath.line.coordinates[i].x);
             }
         }
 
         // we are now x-monotone increasing
         if ((subpath.mono & monoticity::INCREASING_Y) != monoticity::INVALID)
         {
-            return line;
+            return;
         }
     }
 
     // at this point we are always x-monotone descreasing: Mirror on y-Axis
-    std::transform(line.coordinates.begin(), line.coordinates.end(), line.coordinates.begin(),
+    std::transform(subpath.line.coordinates.begin(), subpath.line.coordinates.end(), subpath.line.coordinates.begin(),
                    [](coordinate c)
                    {
                         c.x *= -1;
                         return c;
                    });
-
-    return line;
 }
 
 
-std::vector<monotone_decomposition::monotone_subpath> monotone_decomposition::get_monoticity(const std::vector<coordinate>& path) const
+std::vector<monotone_decomposition::monotone_subpath> monotone_decomposition::get_monotone_subpaths(const poly_line& line) const
 {
+    const auto& path = line.coordinates;
     BOOST_ASSERT(path.size() >= 2);
 
     std::vector<monotone_subpath> subpaths;
@@ -87,7 +83,10 @@ std::vector<monotone_decomposition::monotone_subpath> monotone_decomposition::ge
 
         if (next_mono == monoticity::INVALID)
         {
-            subpaths.emplace_back(monotone_decomposition::monotone_subpath {last_pos, i+1, mono});
+            subpaths.emplace_back(monotone_decomposition::monotone_subpath {
+                                    poly_line {line.id, std::vector<coordinate>(path.begin() + last_pos, path.begin() + (i+1))},
+                                    mono
+                                  });
             last_pos = i;
             mono = current_mono;
         }
@@ -98,7 +97,10 @@ std::vector<monotone_decomposition::monotone_subpath> monotone_decomposition::ge
     }
 
     // finish last subpath
-    subpaths.emplace_back(monotone_decomposition::monotone_subpath {last_pos, static_cast<unsigned>(path.size()), mono});
+    subpaths.emplace_back(monotone_decomposition::monotone_subpath {
+                            poly_line {line.id, std::vector<coordinate>(path.begin() + last_pos, path.end())},
+                            mono
+                          });
 
     return subpaths;
 }

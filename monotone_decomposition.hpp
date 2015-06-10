@@ -25,30 +25,26 @@ public:
 
     };
 
-    std::vector<poly_line> operator()(const poly_line& line)
-    {
-        std::vector<poly_line> monotone_lines;
-
-        auto subpaths = get_monoticity(line.coordinates);
-        for (const auto& s : subpaths)
-        {
-            monotone_lines.push_back(make_x_monotone_increasing(line, s));
-        }
-
-        return monotone_lines;
-    }
-
-private:
-
     struct monotone_subpath
     {
-        unsigned begin_idx;
-        unsigned end_idx;
+        poly_line line;
         monoticity mono;
     };
 
-    poly_line make_x_monotone_increasing(const poly_line& l, const monotone_subpath& subpath) const;
-    std::vector<monotone_subpath> get_monoticity(const std::vector<coordinate>& path) const;
+    std::vector<monotone_subpath> operator()(const poly_line& line)
+    {
+        auto subpaths = get_monotone_subpaths(line);
+        for (auto& s : subpaths)
+        {
+            make_x_monotone_increasing(s);
+        }
+
+        return subpaths;
+    }
+
+private:
+    void make_x_monotone_increasing(monotone_subpath& subpath) const;
+    std::vector<monotone_subpath> get_monotone_subpaths(const poly_line& line) const;
 };
 
 #endif

@@ -35,9 +35,10 @@ BOOST_AUTO_TEST_CASE(example_test)
     auto monotone_lines = decomposition(line);
 
     BOOST_CHECK_EQUAL(monotone_lines.size(), 1);
-    BOOST_CHECK_EQUAL(monotone_lines[0].coordinates.size(), 7);
-    for (auto i = 0u; i < monotone_lines[0].coordinates.size(); ++i)
-        BOOST_CHECK_EQUAL(line.coordinates[i], monotone_lines[0].coordinates[i]);
+    BOOST_CHECK_EQUAL(monotone_lines[0].line.id, 0);
+    BOOST_CHECK_EQUAL(monotone_lines[0].line.coordinates.size(), 7);
+    for (auto i = 0u; i < monotone_lines[0].line.coordinates.size(); ++i)
+        BOOST_CHECK_EQUAL(line.coordinates[i], monotone_lines[0].line.coordinates[i]);
 }
 
 BOOST_AUTO_TEST_CASE(y_monotone_increasing)
@@ -66,9 +67,10 @@ BOOST_AUTO_TEST_CASE(y_monotone_increasing)
     auto monotone_lines = decomposition(line);
 
     BOOST_CHECK_EQUAL(monotone_lines.size(), 1);
-    BOOST_CHECK_EQUAL(monotone_lines[0].coordinates.size(), 4);
-    for (auto i = 1u; i < monotone_lines[0].coordinates.size(); ++i)
-        BOOST_CHECK(monotone_lines[0].coordinates[i-1].x <= monotone_lines[0].coordinates[i].x);
+    BOOST_CHECK_EQUAL(monotone_lines[0].line.id, 0);
+    BOOST_CHECK_EQUAL(monotone_lines[0].line.coordinates.size(), 4);
+    for (auto i = 1u; i < monotone_lines[0].line.coordinates.size(); ++i)
+        BOOST_CHECK(monotone_lines[0].line.coordinates[i-1].x <= monotone_lines[0].line.coordinates[i].x);
 }
 
 BOOST_AUTO_TEST_CASE(y_monotone_decreasing)
@@ -97,9 +99,10 @@ BOOST_AUTO_TEST_CASE(y_monotone_decreasing)
     auto monotone_lines = decomposition(line);
 
     BOOST_CHECK_EQUAL(monotone_lines.size(), 1);
-    BOOST_CHECK_EQUAL(monotone_lines[0].coordinates.size(), 4);
-    for (auto i = 1u; i < monotone_lines[0].coordinates.size(); ++i)
-        BOOST_CHECK(monotone_lines[0].coordinates[i-1].x <= monotone_lines[0].coordinates[i].x);
+    BOOST_CHECK_EQUAL(monotone_lines[0].line.id, 0);
+    BOOST_CHECK_EQUAL(monotone_lines[0].line.coordinates.size(), 4);
+    for (auto i = 1u; i < monotone_lines[0].line.coordinates.size(); ++i)
+        BOOST_CHECK(monotone_lines[0].line.coordinates[i-1].x <= monotone_lines[0].line.coordinates[i].x);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
