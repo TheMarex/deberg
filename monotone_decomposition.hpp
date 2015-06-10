@@ -3,6 +3,7 @@
 
 #include "point.hpp"
 #include "poly_line.hpp"
+#include "geometry.hpp"
 
 #include <boost/assert.hpp>
 
@@ -12,23 +13,12 @@
 class monotone_decomposition
 {
 public:
-    enum class monoticity : unsigned char
-    {
-        INCREASING_X = 1,
-        INCREASING_Y = 2,
-        DECREASING_X = 4,
-        DECREASING_Y = 8,
-        CONSTANT_X   = 5,
-        CONSTANT_Y   = 10,
-        CONSTANT     = 15,
-        INVALID      = 0
-
-    };
-
     struct monotone_subpath
     {
         poly_line line;
-        monoticity mono;
+        unsigned begin_idx;
+        unsigned end_idx;
+        geometry::monoticity mono;
     };
 
     std::vector<monotone_subpath> operator()(const poly_line& line)
@@ -36,14 +26,13 @@ public:
         auto subpaths = get_monotone_subpaths(line);
         for (auto& s : subpaths)
         {
-            make_x_monotone_increasing(s);
+            geometry::make_x_monotone_increasing(s.mono, s.line.coordinates);
         }
 
         return subpaths;
     }
 
 private:
-    void make_x_monotone_increasing(monotone_subpath& subpath) const;
     std::vector<monotone_subpath> get_monotone_subpaths(const poly_line& line) const;
 };
 

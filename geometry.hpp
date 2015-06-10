@@ -10,6 +10,19 @@
 
 namespace geometry
 {
+    enum class monoticity : unsigned char
+    {
+        INCREASING_X = 1,
+        INCREASING_Y = 2,
+        DECREASING_X = 4,
+        DECREASING_Y = 8,
+        CONSTANT_X   = 5,
+        CONSTANT_Y   = 10,
+        CONSTANT     = 15,
+        INVALID      = 0
+
+    };
+
     enum class point_position : char
     {
         LEFT_OF_LINE,
@@ -17,12 +30,53 @@ namespace geometry
         ON_LINE
     };
 
-    /**
-     * Returns a vector that is orthogonal to the line implied by
-     * first_line_point and second_line_point.
-     *
-     * This vector is not normalized!
-     */
+    inline monoticity operator&(monoticity lhs, monoticity rhs)
+    {
+        return static_cast<geometry::monoticity>(static_cast<char>(lhs) & static_cast<char>(rhs));
+    }
+
+    /// Transforms the path from the goven monoticity to be x-monotone-increasing
+    inline void make_x_monotone_increasing(monoticity mono, std::vector<coordinate>& path)
+    {
+        BOOST_ASSERT(mono != monoticity::INVALID);
+
+        if ((mono & monoticity::INCREASING_X) != monoticity::INVALID)
+        {
+            return;
+        }
+
+        if ((mono & monoticity::DECREASING_X) == monoticity::INVALID)
+        {
+            // make x-monotone: swap x and y (mirror on (0,0)->(1,1))
+            if ((mono & monoticity::INCREASING_Y) != monoticity::INVALID ||
+                (mono & monoticity::DECREASING_Y) != monoticity::INVALID)
+            {
+                for (unsigned i = 0; i < path.size(); i++)
+                {
+                    std::swap(path[i].y, path[i].x);
+                }
+            }
+
+            // we are now x-monotone increasing
+            if ((mono & monoticity::INCREASING_Y) != monoticity::INVALID)
+            {
+                return;
+            }
+        }
+
+        // at this point we are always x-monotone descreasing: Mirror on y-Axis
+        std::transform(path.begin(), path.end(), path.begin(),
+                       [](coordinate c)
+                       {
+                            c.x *= -1;
+                            return c;
+                       });
+    }
+
+    /// Returns a vector that is orthogonal to the line implied by
+    /// first_line_point and second_line_point.
+    ///
+    /// This vector is not normalized!
     inline coordinate line_normal(const coordinate& first_line_point,
                                   const coordinate& second_line_point)
     {
