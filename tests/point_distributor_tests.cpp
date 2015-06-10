@@ -32,13 +32,13 @@ BOOST_AUTO_TEST_CASE(example)
         }
     };
 
-    auto points = std::unique_ptr<std::vector<point>>(new std::vector<point> {
-        point {0u, coordinate {0.5, 0.5}},
-        point {1u, coordinate {5, 0.5}},
-        point {2u, coordinate {3.75, -0.6}},
-        point {3u, coordinate {3.75, -0.5}},
-        point {4u, coordinate {0.5, 0}}
-    });
+    std::vector<point> points = {
+        point {point::NO_LINE_ID, 0u, coordinate {0.5, 0.5}},
+        point {point::NO_LINE_ID, 1u, coordinate {5, 0.5}},
+        point {point::NO_LINE_ID, 2u, coordinate {3.75, -0.6}},
+        point {point::NO_LINE_ID, 3u, coordinate {3.75, -0.5}},
+        point {point::NO_LINE_ID, 4u, coordinate {0.5, 0}}
+    };
 
     std::vector<shortcut> tangents_from_first {
         shortcut {0, 3, 1, shortcut::type::MINIMAL_TANGENT},

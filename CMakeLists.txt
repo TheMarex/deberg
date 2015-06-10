@@ -20,7 +20,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 add_subdirectory(./third_party/tinyxml2)
 add_subdirectory(./third_party/glm)
 
-SET(TESTS_SOURCE tests/tests.cpp tests/reader_test.cpp tests/geometry_tests.cpp tests/tangent_splitter_tests.cpp  tests/sweepline_tests.cpp tests/point_distributor_tests.cpp tests/shortcut_acceptor_tests.cpp tests/static_permutation_queue_tests.cpp)
+SET(TESTS_SOURCE tests/tests.cpp tests/reader_test.cpp tests/geometry_tests.cpp tests/tangent_splitter_tests.cpp  tests/sweepline_tests.cpp tests/point_distributor_tests.cpp tests/shortcut_acceptor_tests.cpp tests/static_permutation_queue_tests.cpp tests/point_filter_tests.cpp)
 SET(LIBRARY_SOURCE tangent_splitter.cpp point_distributor.cpp sweepline_state.cpp shortcut_acceptor.cpp)
 add_executable(tests ${TESTS_SOURCE} ${LIBRARY_SOURCE})
 target_link_libraries(tests ${Boost_LIBRARIES} tinyxml2)

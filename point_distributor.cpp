@@ -124,7 +124,7 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
             auto point_idx = assignments_iter->second;
 
             BOOST_ASSERT(assignments_iter->first.first >= tangents[tangent_idx].first);
-            BOOST_ASSERT(points_begin_idx + point_idx< points->size());
+            BOOST_ASSERT(points_begin_idx + point_idx< points.size());
 
             // only chose the point with minimal/maximal angle
             if (tangents[tangent_idx].classification == shortcut::type::MINIMAL_TANGENT)
@@ -133,7 +133,7 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                 if (!has_assignment ||
                     slope_cmp(point_coordinates[points_begin_idx + point_idx], tangent_assignment.first.location))
                 {
-                    tangent_assignment = point_assignment(points->at(points_begin_idx + point_idx), tangent_idx);
+                    tangent_assignment = point_assignment(points[points_begin_idx + point_idx], tangent_idx);
                     has_assignment = true;
                 }
             }
@@ -145,7 +145,7 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                 if (!has_assignment ||
                     slope_cmp(tangent_assignment.first.location, point_coordinates[points_begin_idx + point_idx]))
                 {
-                    tangent_assignment = point_assignment(points->at(points_begin_idx + point_idx), tangent_idx);
+                    tangent_assignment = point_assignment(points[points_begin_idx + point_idx], tangent_idx);
                     has_assignment = true;
                 }
             }

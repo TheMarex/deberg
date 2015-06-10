@@ -55,6 +55,8 @@ private:
     {
         point p;
 
+        p.line_id = point::NO_LINE_ID;
+
         auto pos = input_line.find(':');
         std::string input_id = input_line.substr(0, pos);
         p.id = std::stoi(input_id);

@@ -41,8 +41,8 @@ BOOST_AUTO_TEST_CASE(example)
         shortcut {0, 6, 1, shortcut::type::MAXIMAL_TANGENT},
     };
     std::vector<point_distributor::point_assignment> first_assignments {
-        point_distributor::point_assignment {point {4u, coordinate {0.5, 0}}, 0},
-        point_distributor::point_assignment {point {3u, coordinate {3.75, -0.5}}, 3},
+        point_distributor::point_assignment {point {point::NO_LINE_ID, 4u, coordinate {0.5, 0}}, 0},
+        point_distributor::point_assignment {point {point::NO_LINE_ID, 3u, coordinate {3.75, -0.5}}, 3},
     };
     auto first_accepted = acceptor(0, tangents_from_first, first_assignments);
     BOOST_CHECK_EQUAL(first_accepted.size(), 2);
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(example)
         shortcut {3, 6, 5, shortcut::type::MAXIMAL_TANGENT},
     };
     std::vector<point_distributor::point_assignment> fourth_assignments {
-        point_distributor::point_assignment {point {3u, coordinate {3.75, -0.5}}, 1},
+        point_distributor::point_assignment {point {point::NO_LINE_ID, 3u, coordinate {3.75, -0.5}}, 1},
     };
     auto fourth_accepted = acceptor(3, tangents_from_fourth, fourth_assignments);
     BOOST_CHECK_EQUAL(fourth_accepted.size(), 1);
