@@ -1,5 +1,4 @@
 #include "../geometry.hpp"
-#include "../topo_sort.hpp"
 #include "../static_graph.hpp"
 
 #include <boost/test/unit_test.hpp>
@@ -10,40 +9,6 @@
 #include "test_utils.hpp"
 
 BOOST_AUTO_TEST_SUITE(geometry_tests)
-
-struct TestEdge
-{
-    unsigned first;
-    unsigned last;
-};
-
-BOOST_AUTO_TEST_CASE(topo_sort)
-{
-    //
-    //   4----->--\/---------->---------\
-    //             1--------->3-------->5
-    //   0----->--/ \
-    //               \
-    //                2
-    std::vector<TestEdge> edges = {
-        {0, 1},
-        {1, 2},
-        {1, 3},
-        {1, 5},
-        {3, 5},
-        {4, 1}
-    };
-
-    static_graph<TestEdge> graph(6, std::move(edges));
-    auto ordering = geometry::topo_sort(graph);
-    BOOST_CHECK_EQUAL(ordering.size(), 6);
-    BOOST_CHECK_EQUAL(ordering[0], 5);
-    BOOST_CHECK_EQUAL(ordering[1], 3);
-    BOOST_CHECK_EQUAL(ordering[2], 2);
-    BOOST_CHECK_EQUAL(ordering[3], 1);
-    BOOST_CHECK_EQUAL(ordering[4], 0);
-    BOOST_CHECK_EQUAL(ordering[5], 4);
-}
 
 BOOST_AUTO_TEST_CASE(cross_product_test)
 {

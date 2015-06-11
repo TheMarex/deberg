@@ -155,9 +155,5 @@ namespace geometry
                // origin -> rhs points in opposite direction
                glm::dot(lhs - origin, rhs - origin) < 0);
     }
-
-    /// returns the ordering of a topological sort
-
-
 };
 #endif

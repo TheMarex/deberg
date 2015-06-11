@@ -31,7 +31,9 @@ SET(TESTS_SOURCE
   tests/static_permutation_queue_tests.cpp
   tests/point_filter_tests.cpp
   tests/monotone_decomposition_tests.cpp
-  tests/static_graph_tests.cpp)
+  tests/static_graph_tests.cpp
+  tests/graph_util_tests.cpp
+  tests/map_simplification_tests.cpp)
 SET(LIBRARY_SOURCE
   tangent_splitter.cpp
   point_distributor.cpp
