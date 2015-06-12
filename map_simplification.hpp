@@ -58,20 +58,19 @@ private:
 
             num_used_edges += path_info.distance[num_nodes-1];
             simplified[i].id = lines[i].id;
-            simplified[i].coordinates.reserve(path_info.distance[num_nodes-1]);
-            simplified[i].coordinates.push_back(lines[i].coordinates[0]);
-            for (const auto& shortcut : shortcut_lists[i])
+
+            std::deque<coordinate> simplified_path;
+            unsigned current_parent_idx = num_nodes-1;
+            while (current_parent_idx != 0)
             {
-                if (path_info.parents[shortcut.last] == shortcut.first)
-                {
-                    simplified[i].coordinates.push_back(lines[i].coordinates[shortcut.last]);
-                }
+                simplified_path.push_front(lines[i].coordinates[current_parent_idx]);
+                current_parent_idx = path_info.parents[current_parent_idx];
             }
+            simplified_path.push_front(lines[i].coordinates.front());
+            simplified[i].coordinates = std::vector<coordinate>(simplified_path.begin(), simplified_path.end());
 
-            BOOST_ASSERT(path_info.distance[num_nodes-1] == simplified[i].coordinates.size());
+            BOOST_ASSERT(path_info.distance[num_nodes-1] == simplified[i].coordinates.size() - 1);
         }
-
-        std::cout << "Used " << num_used_edges << " edges." << std::endl;
 
         return simplified;
     }

@@ -64,4 +64,60 @@ BOOST_AUTO_TEST_CASE(example)
     BOOST_CHECK_EQUAL(fourth_accepted[1].last, 5);
 }
 
+BOOST_AUTO_TEST_CASE(example_line_test)
+{
+    //  0
+    //  |
+    //  |     x
+    //  |    3-----4
+    //  |    |
+    //  |    |
+    //  1----2
+    //
+    std::vector<coordinate> coords = {
+        coordinate {0, 2},      // 0
+        coordinate {0, 0},      // 1
+        coordinate {1, 0},      // 2
+        coordinate {1, 1},      // 3
+        coordinate {2, 1},      // 4
+    };
+
+
+    shortcut_acceptor acceptor({0, coords});
+    {
+        auto accepted = acceptor(0,
+                {shortcut {0, 4, 1, shortcut::type::MAXIMAL_TANGENT}},
+                {point_distributor::point_assignment {point {point::NO_LINE_ID, 3u, coordinate {1.1, 1.1}}, 0}}
+        );
+        BOOST_CHECK_EQUAL(accepted.size(), 3);
+        BOOST_CHECK_EQUAL(accepted[0].last, 1);
+        BOOST_CHECK_EQUAL(accepted[1].last, 2);
+        BOOST_CHECK_EQUAL(accepted[2].last, 3);
+    }
+    {
+        auto accepted = acceptor(1,
+                { shortcut {1, 3, 1, shortcut::type::MAXIMAL_TANGENT}, shortcut {1, 4, 3, shortcut::type::MINIMAL_TANGENT} },
+                { }
+        );
+        BOOST_CHECK_EQUAL(accepted.size(), 3);
+        BOOST_CHECK_EQUAL(accepted[0].last, 2);
+        BOOST_CHECK_EQUAL(accepted[1].last, 3);
+        BOOST_CHECK_EQUAL(accepted[2].last, 4);
+    }
+    {
+        auto accepted = acceptor(2,
+                { shortcut {2, 4, 3, shortcut::type::MINIMAL_TANGENT} },
+                { }
+        );
+        BOOST_CHECK_EQUAL(accepted.size(), 2);
+        BOOST_CHECK_EQUAL(accepted[0].last, 3);
+        BOOST_CHECK_EQUAL(accepted[1].last, 4);
+    }
+    {
+        auto accepted = acceptor(3, { }, { });
+        BOOST_CHECK_EQUAL(accepted.size(), 1);
+        BOOST_CHECK_EQUAL(accepted[0].last, 4);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

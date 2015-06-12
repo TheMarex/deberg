@@ -5,6 +5,8 @@
 
 #include <boost/variant.hpp>
 
+#include <iostream>
+
 /// Returns an assignment of points for the given tangents that each imply a facet
 ///
 /// The sweep line algorithm only works if std::stable_sort is used, since the vertices are originally sorted by x-coordinate!
@@ -54,6 +56,8 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
             }
         };
 
+    // We don't insert segments that are _on_ the sweep line.
+    // This only works because we can be sure there is no point on a line segment.
     auto process_vertex =
         [this, num_vertices, vertex_begin_idx, &origin, &state](const std::size_t& vertex_idx)
         {
@@ -67,14 +71,14 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                     state.insert_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx, vertex_begin_idx + vertex_idx + 1});
                 }
                 // edge goes up -> does not intersect anymore
-                else
+                else if (geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_idx + 1], line.coordinates[vertex_begin_idx + vertex_idx]))
                 {
                     state.remove_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx, vertex_begin_idx + vertex_idx + 1});
                 }
             }
             // insert edge to previous vertex
             // ignores the first and also the second vertices because edges to first vertex are always on the sweepline
-            if (vertex_idx > 1)
+            if (vertex_idx > 0)
             {
                 // previous edge goes down -> new to sweep line
                 if (geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_idx], line.coordinates[vertex_begin_idx + vertex_idx - 1]))
@@ -82,7 +86,7 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
                     state.insert_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx - 1, vertex_begin_idx + vertex_idx});
                 }
                 // edge goes up -> does not intersect anymore
-                else
+                else if (geometry::slope_compare(origin, line.coordinates[vertex_begin_idx + vertex_idx - 1], line.coordinates[vertex_begin_idx + vertex_idx]))
                 {
                     state.remove_edge(sweepline_state::edge {vertex_begin_idx + vertex_idx - 1, vertex_begin_idx + vertex_idx});
                 }

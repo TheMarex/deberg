@@ -6,6 +6,8 @@
 #include "shortcut_acceptor.hpp"
 #include "monotone_decomposition.hpp"
 
+#include <iostream>
+
 class deberg
 {
 public:
@@ -69,7 +71,8 @@ private:
 
         std::vector<shortcut> all_shortcuts;
 
-        for (auto i = 0u; i < l.coordinates.size(); ++i)
+        // note: no edges after last coordinate
+        for (auto i = 0u; i < l.coordinates.size() - 1; ++i)
         {
             auto tangents = splitter(i);
             auto assignments = distributor(i, tangents);

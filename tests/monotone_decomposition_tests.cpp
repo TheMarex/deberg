@@ -105,4 +105,41 @@ BOOST_AUTO_TEST_CASE(y_monotone_decreasing)
         BOOST_CHECK(monotone_lines[0].line.coordinates[i-1].x <= monotone_lines[0].line.coordinates[i].x);
 }
 
+BOOST_AUTO_TEST_CASE(example_line)
+{
+    //
+    //        4
+    //        |
+    //        |
+    //   2____3
+    //   |
+    //   1---------0
+    //
+    std::vector<coordinate> cs = {
+        coordinate {2, 0},      // 0
+        coordinate {0, 0},      // 1
+        coordinate {0, 1},      // 2
+        coordinate {1, 1},      // 2
+        coordinate {1, 2},      // 3
+    };
+
+    std::vector<point> points = {
+        {point::NO_LINE_ID, 0, coordinate {2.25, 2.75}}, // a
+        {point::NO_LINE_ID, 1, coordinate {2.1, 0.05}},  // b
+        {point::NO_LINE_ID, 2, coordinate {0.9, 1.1}},   // c
+        {point::NO_LINE_ID, 3, coordinate {1.1, 1.1}},   // d
+    };
+
+    poly_line line = {0, {cs[0], cs[1], cs[2], cs[3], cs[4]}};
+
+    monotone_decomposition decomposition;
+    auto monotone_lines = decomposition(line);
+
+    BOOST_CHECK_EQUAL(monotone_lines.size(), 1);
+    BOOST_CHECK_EQUAL(monotone_lines[0].line.id, 0);
+    BOOST_CHECK_EQUAL(monotone_lines[0].line.coordinates.size(), 5);
+    for (auto i = 1u; i < monotone_lines[0].line.coordinates.size(); ++i)
+        BOOST_CHECK(monotone_lines[0].line.coordinates[i-1].x <= monotone_lines[0].line.coordinates[i].x);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

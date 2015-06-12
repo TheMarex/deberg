@@ -41,8 +41,8 @@ private:
 
     bool in_bounding_box(const coordinate& coord)
     {
-        return coord.x >= min.x && coord.y >= min.y &&
-               coord.x <= max.x && coord.y <= max.y;
+        return coord.x > min.x && coord.y > min.y &&
+               coord.x < max.x && coord.y < max.y;
     }
 
     const poly_line& line;

@@ -35,10 +35,10 @@ std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vecto
     {
         const auto& tangent = tangents[tangent_idx];
 
-        BOOST_ASSERT(assignment_iter->second >= tangent_idx);
+        BOOST_ASSERT(assignment_iter == assignments.end() || assignment_iter->second >= tangent_idx);
 
         // the current facette has a point assignment
-        if (assignment_iter->second == tangent_idx)
+        if (assignment_iter != assignments.end() && assignment_iter->second == tangent_idx)
         {
             BOOST_ASSERT(tangent.classification == shortcut::type::MAXIMAL_TANGENT ||
                          tangent.classification == shortcut::type::MINIMAL_TANGENT);
@@ -76,6 +76,13 @@ std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vecto
             current_shortcut_idx++;
         }
     }
+
+    // we might have missed the last shortcut of the last facet
+    if (vertex_deque.contains(current_shortcut_idx))
+    {
+        valid_shortcuts.emplace_back(i, vertex_begin_idx + current_shortcut_idx);
+    }
+
 
     BOOST_ASSERT(assignment_iter == assignments.end());
 

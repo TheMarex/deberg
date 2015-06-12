@@ -100,4 +100,30 @@ BOOST_AUTO_TEST_CASE(insert_test)
     BOOST_CHECK_EQUAL(state.intersecting_edges.size(), 0);
 }
 
+BOOST_AUTO_TEST_CASE(horizontal_segment)
+{
+
+    //              a
+    //         2--------3
+    //         |
+    //         |
+    //  0------1
+    //
+    std::vector<coordinate> coords { {0, 0}, {1, 0}, {1, 1}, {2, 1} };
+
+    coordinate a {1.5, 1.25};
+
+    sweepline_state state(coords);
+
+    state.insert_edge(sweepline_state::edge {2, 3});
+    state.insert_edge(sweepline_state::edge {1, 2});
+
+    BOOST_CHECK(state.get_first_intersecting(a) == state.intersecting_edges.end());
+
+    state.remove_edge(sweepline_state::edge {2, 3});
+
+    state.remove_edge(sweepline_state::edge {1, 2});
+    state.insert_edge(sweepline_state::edge {0, 1});
+}
+
 BOOST_AUTO_TEST_SUITE_END()

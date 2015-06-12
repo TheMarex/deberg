@@ -18,10 +18,51 @@ BOOST_AUTO_TEST_CASE(cross_product_test)
     BOOST_CHECK_EQUAL(geometry::cross(coordinate {-1, 0}, coordinate {-1, 0}), 0);
 }
 
+BOOST_AUTO_TEST_CASE(segments_intersect)
+{
+    BOOST_CHECK(geometry::segments_intersect(coordinate {0, 0}, coordinate {1, 1}, coordinate {0, 0.5}, coordinate {1, 0.5}));
+    BOOST_CHECK(!geometry::segments_intersect(coordinate {0, 0}, coordinate {-1, -1}, coordinate {0, 0.5}, coordinate {1, 0.5}));
+}
+
 BOOST_AUTO_TEST_CASE(segment_intersection)
 {
-    BOOST_CHECK(geometry::segment_intersection(coordinate {0, 0}, coordinate {1, 1}, coordinate {0, 0.5}, coordinate {1, 0.5}));
-    BOOST_CHECK(!geometry::segment_intersection(coordinate {0, 0}, coordinate {-1, -1}, coordinate {0, 0.5}, coordinate {1, 0.5}));
+    // 0    1     2     3
+    // 4    5     6     7
+    // 8    9     10    11
+    std::vector<coordinate> coords {
+        {0, 1}, {1, 1}, {2, 1}, {3, 1},
+        {0, 0}, {1, 0}, {2, 0}, {3, 0},
+        {0, -1}, {1, -1}, {2, -1}, {3, -1},
+    };
+
+    {
+        auto params = geometry::segment_intersection(coords[4], coords[7], coords[0], coords[9]);
+        BOOST_CHECK_EQUAL(params.first_param, 1/6.0);
+        BOOST_CHECK_EQUAL(params.second_param, 0.5);
+    }
+
+    {
+        auto params = geometry::segment_intersection(coords[4], coords[7], coords[9], coords[0]);
+        BOOST_CHECK_EQUAL(params.first_param, 1/6.0);
+        BOOST_CHECK_EQUAL(params.second_param, 0.5);
+    }
+
+    {
+        auto params = geometry::segment_intersection(coords[4], coords[5], coords[2], coords[11]);
+        BOOST_CHECK_EQUAL(params.first_param, 2.5);
+        BOOST_CHECK_EQUAL(params.second_param, 0.5);
+    }
+
+    {
+        auto params = geometry::segment_intersection(coords[2], coords[9], coords[3], coords[10]);
+        BOOST_CHECK(params.colinear);
+    }
+
+    {
+        auto params = geometry::segment_intersection(coords[1], coords[10], coords[2], coords[9]);
+        BOOST_CHECK_EQUAL(params.first_param, 0.5);
+        BOOST_CHECK_EQUAL(params.second_param, 0.5);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(normal_test)

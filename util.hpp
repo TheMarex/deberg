@@ -63,7 +63,7 @@ void merge(ForwardIter1 begin_first,  ForwardIter1 end_first,
 {
     auto iter_first = begin_first;
     auto iter_second = begin_second;
-    while (iter_first != end_first && iter_second != end_first)
+    while (iter_first != end_first && iter_second != end_second)
     {
         if (cmp(*iter_first, *iter_second))
         {

@@ -124,6 +124,9 @@ BOOST_AUTO_TEST_CASE(non_null_start)
 
     tangents = splitter(2);
     BOOST_CHECK_EQUAL(tangents.size(), 0);
+
+    tangents = splitter(3);
+    BOOST_CHECK_EQUAL(tangents.size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(paper_example_test)
@@ -185,6 +188,34 @@ BOOST_AUTO_TEST_CASE(paper_example_test)
     BOOST_CHECK_EQUAL(fifth_tangents[2].last, 9);
     BOOST_CHECK_EQUAL(fifth_tangents[2].classification, shortcut::type::MAXIMAL_TANGENT);
     BOOST_CHECK_EQUAL(fifth_tangents[2].split_edge, 7);
+}
+
+BOOST_AUTO_TEST_CASE(example_line_test)
+{
+    //
+    // 0
+    // |
+    // |    3----4
+    // |    |
+    // 1----2
+    //
+    poly_line line;
+    line.coordinates = {
+        {0, 2},
+        {0, 0},
+        {1, 0},
+        {1, 1},
+        {2, 1}
+    };
+
+    tangent_splitter splitter(line);
+    auto tangents = splitter(0);
+
+    BOOST_CHECK_EQUAL(tangents.size(), 1);
+    BOOST_CHECK_EQUAL(tangents[0].first, 0);
+    BOOST_CHECK_EQUAL(tangents[0].last, 4);
+    BOOST_CHECK_EQUAL(tangents[0].classification, shortcut::type::MAXIMAL_TANGENT);
+    BOOST_CHECK_EQUAL(tangents[0].split_edge, 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(example_test)
         {0, 4, coordinate {3, 0}},
         {0, 5, coordinate {4, -1}},
         {0, 6, coordinate {5, 2}},
-        {point::NO_LINE_ID, 7, coordinate {5, 0}},
+        {point::NO_LINE_ID, 7, coordinate {4.9, 0}},
         {point::NO_LINE_ID, 8, coordinate {4, 0.5}},
         {point::NO_LINE_ID, 9, coordinate {1, 2.5}},
     };

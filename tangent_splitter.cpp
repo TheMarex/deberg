@@ -25,10 +25,10 @@ std::vector<shortcut> tangent_splitter::operator()(unsigned i) const
             bool intersects = false;
             while (!intersects && prev_idx > 1)
             {
-                intersects = geometry::segment_intersection(line.coordinates[i + prev_idx - 1],
-                                                            line.coordinates[i + prev_idx],
-                                                            line.coordinates[i],
-                                                            line.coordinates[i + idx]);
+                intersects = geometry::segments_intersect(line.coordinates[i + prev_idx - 1],
+                                                          line.coordinates[i + prev_idx],
+                                                          line.coordinates[i],
+                                                          line.coordinates[i + idx]);
 
                 if (!intersects && tangents[prev_idx].classification == tangents[idx].classification)
                 {

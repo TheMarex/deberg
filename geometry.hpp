@@ -89,18 +89,41 @@ namespace geometry
         return a.x * b.y - a.y * b.x;
     }
 
-    inline bool segment_intersection(const coordinate& first_segment_a, const coordinate& first_segment_b,
-                                     const coordinate& second_segment_a, const coordinate& second_segment_b)
+    struct intersection_params
     {
+        double first_param;
+        double second_param;
+        bool colinear;
+    };
+
+    inline intersection_params segment_intersection(
+            const coordinate& first_segment_a, const coordinate& first_segment_b,
+            const coordinate& second_segment_a, const coordinate& second_segment_b)
+    {
+        intersection_params params {0, 0, false};
         const coordinate first_delta = first_segment_b - first_segment_a;
         const coordinate second_delta = second_segment_b - second_segment_a;
         auto direction_cross = cross(first_delta, second_delta);
         // colinear
         if (direction_cross == 0)
-            return false;
+        {
+            params.colinear = true;
+        }
+        else
+        {
+            params.first_param  = cross((second_segment_a - first_segment_a), second_delta) / direction_cross;
+            params.second_param = cross((second_segment_a - first_segment_a), first_delta) / direction_cross;
+        }
 
-        auto u = cross((second_segment_a - first_segment_a), first_delta) / direction_cross;
-        auto t = cross((second_segment_a - first_segment_a), second_delta) / direction_cross;
+        return params;
+    }
+
+    inline bool segments_intersect(const coordinate& first_segment_a, const coordinate& first_segment_b,
+                                   const coordinate& second_segment_a, const coordinate& second_segment_b)
+    {
+        auto params = segment_intersection(first_segment_a, first_segment_b, second_segment_a, second_segment_b);
+        auto u = params.first_param;
+        auto t = params.second_param;
 
         return (u >= 0 && u <= 1.0) && (t >= 0 && t <= 1.0);
     }
