@@ -60,14 +60,14 @@ public:
     void pop_back()
     {
         is_present[end-1] = false;
-        --end;
+        fixup_end();
         BOOST_ASSERT(end >= begin);
     }
 
     void pop_front()
     {
         is_present[begin] = false;
-        ++begin;
+        fixup_begin();
         BOOST_ASSERT(end >= begin);
     }
 
@@ -80,10 +80,23 @@ public:
     void erase(index_type key)
     {
         is_present[index[key]] = false;
+        fixup_begin();
+        fixup_end();
+    }
+
+    void fixup_begin()
+    {
+        while (!is_present[begin] && end > begin)
+            ++begin;
+    }
+
+    void fixup_end()
+    {
+        while (!is_present[end-1] && end > begin)
+            --end;
     }
 
 private:
-
     std::vector<bool> is_present;
     std::vector<index_type> index;
     index_type begin;

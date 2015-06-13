@@ -7,7 +7,20 @@
 
 #include "test_utils.hpp"
 
-BOOST_AUTO_TEST_SUITE(static_permuation_deque_tests)
+BOOST_AUTO_TEST_SUITE(static_permutation_deque_tests)
+
+BOOST_AUTO_TEST_CASE(remove_end_test)
+{
+    std::vector<std::size_t> ordering = {4, 3, 1, 0, 2};
+    static_permuation_deque deque(std::move(ordering));
+
+    deque.erase(0);
+    BOOST_CHECK_EQUAL(deque.back(), 2);
+
+    deque.erase(2);
+    BOOST_CHECK_EQUAL(deque.back(), 1);
+
+}
 
 BOOST_AUTO_TEST_CASE(contains_test)
 {
