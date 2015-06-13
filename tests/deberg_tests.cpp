@@ -51,12 +51,33 @@ BOOST_AUTO_TEST_CASE(example_test)
         {4, {cs[10], cs[9]}},
     };
 
-    auto line_1 = lines[0];
-    std::vector<point> points_1 = {
-        points[0], points[1], points[2], points[3],
-    };
-    deberg simplification(line_1, std::move(points_1));
-    auto shortcuts = simplification();
+    {
+        auto points_copy = points;
+        deberg simplification(lines[0], std::move(points_copy));
+        auto shortcuts = simplification();
+        BOOST_CHECK_EQUAL(shortcuts.size(), 5);
+        BOOST_CHECK_EQUAL(shortcuts[0].first, 0);
+        BOOST_CHECK_EQUAL(shortcuts[0].last,  1);
+        BOOST_CHECK_EQUAL(shortcuts[1].first, 1);
+        BOOST_CHECK_EQUAL(shortcuts[1].last,  2);
+        BOOST_CHECK_EQUAL(shortcuts[2].first, 1);
+        BOOST_CHECK_EQUAL(shortcuts[2].last,  3);
+        BOOST_CHECK_EQUAL(shortcuts[3].first, 2);
+        BOOST_CHECK_EQUAL(shortcuts[3].last,  3);
+        BOOST_CHECK_EQUAL(shortcuts[4].first, 3);
+        BOOST_CHECK_EQUAL(shortcuts[4].last,  4);
+    }
+
+    {
+        auto points_copy = points;
+        deberg simplification(lines[1], std::move(points_copy));
+        auto shortcuts = simplification();
+        BOOST_CHECK_EQUAL(shortcuts.size(), 1);
+        BOOST_CHECK_EQUAL(shortcuts[0].first, 0);
+        BOOST_CHECK_EQUAL(shortcuts[0].last,  1);
+    }
+
+    // TODO tets the rest of the lines
 }
 
 BOOST_AUTO_TEST_SUITE_END()

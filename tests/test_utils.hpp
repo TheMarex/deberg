@@ -3,18 +3,6 @@
 
 #include <iostream>
 
-#ifdef POINT_HPP
-namespace glm
-{
-inline std::ostream& operator<<(std::ostream& lhs, const coordinate& rhs)
-{
-    lhs << "("  << rhs.x << ", " << rhs.y << ")";
-    return lhs;
-}
-
-}
-#endif
-
 #ifdef GEOMETRY_HPP
 
 namespace geometry {

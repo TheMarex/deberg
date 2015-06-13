@@ -2,6 +2,7 @@
 #define POINT_HPP
 
 #include <glm/glm.hpp>
+#include <iostream>
 
 using coordinate = glm::dvec2;
 
@@ -13,5 +14,15 @@ struct point
     unsigned id;
     coordinate location;
 };
+
+namespace glm
+{
+inline std::ostream& operator<<(std::ostream& lhs, const coordinate& rhs)
+{
+    lhs << "("  << rhs.x << ", " << rhs.y << ")";
+    return lhs;
+}
+
+}
 
 #endif

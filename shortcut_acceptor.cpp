@@ -19,7 +19,7 @@ std::vector<shortcut> shortcut_acceptor::operator()(unsigned i, const std::vecto
 {
     std::vector<shortcut> valid_shortcuts;
 
-    const auto& origin = line.coordinates.front();
+    const auto& origin = line.coordinates[i];
 
     unsigned vertex_begin_idx = i + 1;
     auto vertex_deque = static_permuation_deque(util::compute_odering(line.coordinates.begin() + vertex_begin_idx, line.coordinates.end(),
