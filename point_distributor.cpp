@@ -30,7 +30,7 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
 
     auto num_vertices = vertex_odering.size();
 
-    sweepline_state state(line.coordinates);
+    sweepline_state state(line.coordinates, i);
 
     using edge_assignment = std::pair<sweepline_state::edge, unsigned>;
     std::vector<edge_assignment> edge_assignments;
@@ -48,6 +48,8 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
     auto process_point =
         [this, points_begin_idx, &edge_assignments, &state](const std::size_t& point_idx)
         {
+            state.move_sweepline(point_coordinates[points_begin_idx + point_idx]);
+
             BOOST_ASSERT(points_begin_idx + point_idx < point_coordinates.size());
             auto edge_iter = state.get_first_intersecting(point_coordinates[points_begin_idx + point_idx]);
             if (edge_iter != state.intersecting_edges.end())
@@ -61,6 +63,8 @@ std::vector<point_distributor::point_assignment> point_distributor::operator()(u
     auto process_vertex =
         [this, num_vertices, vertex_begin_idx, &origin, &state](const std::size_t& vertex_idx)
         {
+            state.move_sweepline(line.coordinates[vertex_begin_idx + vertex_idx]);
+
             // insert edge to the next vertex
             // ignores last vertex because there is no next vertex
             if (vertex_idx < num_vertices - 1)

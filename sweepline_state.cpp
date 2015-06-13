@@ -6,16 +6,28 @@
 
 #include <algorithm>
 #include <functional>
+#include <iostream>
 
-bool sweepline_state::edge_comparator(const sweepline_state::edge& lhs, const sweepline_state::edge& rhs) const
+bool sweepline_state::edge_comparator(const sweepline_state::edge& lhs,
+                                      const sweepline_state::edge& rhs) const
 {
-    auto lhs_x = std::max(coordinates[lhs.first].x, coordinates[lhs.second].x);
-    auto rhs_x = std::max(coordinates[rhs.first].x, coordinates[rhs.second].x);
+    const auto& lhs_start = coordinates[lhs.first];
+    const auto& lhs_end = coordinates[lhs.second];
+    const auto& rhs_start = coordinates[rhs.first];
+    const auto& rhs_end = coordinates[rhs.second];
+    auto lhs_params = geometry::segment_intersection(sweepline_start, sweepline_end, lhs_start, lhs_end);
+    auto rhs_params = geometry::segment_intersection(sweepline_start, sweepline_end, rhs_start, rhs_end);
 
-    return (lhs_x != rhs_x) ?
-        lhs_x < rhs_x :
-        (std::min(coordinates[lhs.first].x, coordinates[lhs.second].x) <
-         std::min(coordinates[rhs.first].x, coordinates[rhs.second].x));
+    auto lhs_x = std::max(lhs_start.x, lhs_end.x);
+    auto rhs_x = std::max(rhs_start.x, rhs_end.x);
+
+    // compare the intersection points on the sweepline
+    return lhs_params.first_param < rhs_params.first_param || (lhs_params.first_param == rhs_params.first_param && lhs_x < rhs_x);
+}
+
+void sweepline_state::move_sweepline(const coordinate& position)
+{
+    sweepline_end = position;
 }
 
 void sweepline_state::insert_edge(const sweepline_state::edge& to_insert)
@@ -23,7 +35,8 @@ void sweepline_state::insert_edge(const sweepline_state::edge& to_insert)
     BOOST_ASSERT(to_insert.first < to_insert.second);
 
     auto iter = std::lower_bound(intersecting_edges.begin(), intersecting_edges.end(),
-                                 to_insert, std::bind(&sweepline_state::edge_comparator, this, std::placeholders::_1, std::placeholders::_2));
+                                 to_insert, std::bind(&sweepline_state::edge_comparator, this,
+                                                      std::placeholders::_1, std::placeholders::_2));
 
     if (iter == intersecting_edges.end())
     {
@@ -44,8 +57,14 @@ void sweepline_state::remove_edge(const sweepline_state::edge& to_remove)
     BOOST_ASSERT(to_remove.first < to_remove.second);
 
     auto iter = std::lower_bound(intersecting_edges.begin(), intersecting_edges.end(),
-                                 to_remove, std::bind(&sweepline_state::edge_comparator, this, std::placeholders::_1, std::placeholders::_2));
+                                 to_remove, std::bind(&sweepline_state::edge_comparator, this,
+                                                      std::placeholders::_1, std::placeholders::_2));
 
+    // search for the real position, might have hit an itersection
+    while (iter != intersecting_edges.end() && iter->first != to_remove.first && iter->second != to_remove.second)
+    {
+        iter++;
+    }
     BOOST_ASSERT(iter != intersecting_edges.end());
     BOOST_ASSERT(iter->first == to_remove.first && iter->second == to_remove.second);
 
@@ -54,30 +73,16 @@ void sweepline_state::remove_edge(const sweepline_state::edge& to_remove)
 
 sweepline_state::edge_iterator sweepline_state::get_first_intersecting(const coordinate& coord) const
 {
+    BOOST_ASSERT_MSG(geometry::segment_intersection(sweepline_start, sweepline_end,
+                                                    sweepline_start, coord).colinear,
+                     "Sweepline must be moved forward for intersection search.");
+
     auto iter = std::lower_bound(intersecting_edges.begin(), intersecting_edges.end(), coord,
                                  [this](const edge& lhs, const coordinate& rhs)
                                  {
-                                    // this only works for x-monotone paths.
-                                    //    1----2      1
-                                    //       p       p \
-                                    //                  2
-                                    BOOST_ASSERT(lhs.first < lhs.second);
-                                    BOOST_ASSERT(coordinates[lhs.first].x <= coordinates[lhs.second].x);
-                                    auto p1 = coordinates[lhs.first];
-                                    auto p2 = coordinates[lhs.second];
-                                    auto position = geometry::position_to_line(p1, p2, rhs);
+                                    auto params = geometry::segment_intersection(sweepline_start, rhs, coordinates[lhs.first], coordinates[lhs.second]);
 
-                                    // FIXME if a point is on a line, it belongs to both facets
-                                    BOOST_ASSERT(position != geometry::point_position::ON_LINE);
-
-                                    if (p1.y <= p2.y)
-                                    {
-                                        return position == geometry::point_position::RIGHT_OF_LINE;
-                                    }
-                                    else
-                                    {
-                                        return position == geometry::point_position::LEFT_OF_LINE;
-                                    }
+                                    return params.first_param < 1;
                                  });
     return iter;
 }

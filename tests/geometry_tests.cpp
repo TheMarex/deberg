@@ -65,6 +65,13 @@ BOOST_AUTO_TEST_CASE(segment_intersection)
     }
 }
 
+BOOST_AUTO_TEST_CASE(intersection_regression)
+{
+    auto params = geometry::segment_intersection({0, 0}, {2, 2}, {1, 1}, {2, 1});
+    BOOST_CHECK_EQUAL(params.first_param, 0.5);
+    BOOST_CHECK_EQUAL(params.second_param, 0);
+}
+
 BOOST_AUTO_TEST_CASE(normal_test)
 {
     BOOST_CHECK_EQUAL(geometry::line_normal(coordinate {0, 0}, coordinate {1, 1}), (coordinate{-1, 1}));

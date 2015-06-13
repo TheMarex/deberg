@@ -124,6 +124,10 @@ namespace geometry
         auto params = segment_intersection(first_segment_a, first_segment_b, second_segment_a, second_segment_b);
         auto u = params.first_param;
         auto t = params.second_param;
+        if (params.colinear)
+        {
+            return false;
+        }
 
         return (u >= 0 && u <= 1.0) && (t >= 0 && t <= 1.0);
     }

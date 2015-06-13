@@ -94,6 +94,7 @@ BOOST_AUTO_TEST_CASE(example_line_test)
     }
 
     {
+        std::cout << "Starting test at 1" << std::endl;
         auto assignments = distributor(1, { shortcut {1, 3, 1, shortcut::type::MAXIMAL_TANGENT}, shortcut {1, 4, 3, shortcut::type::MINIMAL_TANGENT}});
         BOOST_CHECK_EQUAL(assignments.size(), 1);
         BOOST_CHECK_EQUAL(assignments[0].first.id, 2);
