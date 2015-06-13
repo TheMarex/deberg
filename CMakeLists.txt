@@ -23,6 +23,7 @@ add_subdirectory(./third_party/glm)
 SET(TESTS_SOURCE
   tests/tests.cpp
   tests/reader_test.cpp
+  tests/writer_tests.cpp
   tests/geometry_tests.cpp
   tests/tangent_splitter_tests.cpp
   tests/sweepline_tests.cpp
