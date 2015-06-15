@@ -81,4 +81,35 @@ BOOST_AUTO_TEST_CASE(example_test)
     // TODO tets the rest of the lines
 }
 
+
+BOOST_AUTO_TEST_CASE(self_intersection_test)
+{
+    //    0
+    //     \ \
+    //      \  \
+    //       \   \
+    //        1   3
+    //       /   /
+    //      /  /
+    //     / /
+    //    2
+
+    poly_line line { 0, {{0, 0}, {1, -1}, {0, -2}, {2, -1}, {0, 0}} };
+
+    deberg<bb_point_filter> simplification(line, {});
+    auto shortcuts = simplification();
+    BOOST_CHECK_EQUAL(shortcuts.size(), 5);
+    BOOST_CHECK_EQUAL(shortcuts[0].first, 0);
+    BOOST_CHECK_EQUAL(shortcuts[0].last, 1);
+    BOOST_CHECK_EQUAL(shortcuts[1].first, 0);
+    BOOST_CHECK_EQUAL(shortcuts[1].last, 2);
+    BOOST_CHECK_EQUAL(shortcuts[2].first, 1);
+    BOOST_CHECK_EQUAL(shortcuts[2].last, 2);
+    BOOST_CHECK_EQUAL(shortcuts[3].first, 2);
+    BOOST_CHECK_EQUAL(shortcuts[3].last, 3);
+    BOOST_CHECK_EQUAL(shortcuts[4].first, 3);
+    BOOST_CHECK_EQUAL(shortcuts[4].last, 4);
+
+}
+
 BOOST_AUTO_TEST_SUITE_END()
