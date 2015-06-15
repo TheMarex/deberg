@@ -1,4 +1,5 @@
 #include "../deberg.hpp"
+#include "../bb_point_filter.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
@@ -53,7 +54,7 @@ BOOST_AUTO_TEST_CASE(example_test)
 
     {
         auto points_copy = points;
-        deberg simplification(lines[0], std::move(points_copy));
+        deberg<bb_point_filter> simplification(lines[0], std::move(points_copy));
         auto shortcuts = simplification();
         BOOST_CHECK_EQUAL(shortcuts.size(), 5);
         BOOST_CHECK_EQUAL(shortcuts[0].first, 0);
@@ -70,7 +71,7 @@ BOOST_AUTO_TEST_CASE(example_test)
 
     {
         auto points_copy = points;
-        deberg simplification(lines[1], std::move(points_copy));
+        deberg<bb_point_filter> simplification(lines[1], std::move(points_copy));
         auto shortcuts = simplification();
         BOOST_CHECK_EQUAL(shortcuts.size(), 1);
         BOOST_CHECK_EQUAL(shortcuts[0].first, 0);

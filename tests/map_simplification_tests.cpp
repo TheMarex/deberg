@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(example_test)
         {4, {cs[10], cs[9]}},
     };
 
-    map_simplification<deberg, bb_point_filter> simplification(std::move(lines), std::move(points));
+    map_simplification<deberg<bb_point_filter>, bb_point_filter> simplification(std::move(lines), std::move(points));
     auto simplified_lines = simplification(11);
 }
 

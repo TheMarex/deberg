@@ -8,6 +8,7 @@
 
 #include <iostream>
 
+template<typename PointFilterT>
 class deberg
 {
 public:
@@ -23,10 +24,17 @@ public:
 
         monotone_decomposition decomposition;
         auto monotone_lines = decomposition(line);
+        auto line_points = get_line_points(monotone_lines, line.coordinates);
 
-        for (const auto& m : monotone_lines)
+        for (auto i = 0u; i < monotone_lines.size(); ++i)
         {
-            auto transformed_points = transform_points(m.mono, points);
+            const auto& m = monotone_lines[i];
+
+            PointFilterT filter(m.line.coordinates, i);
+            auto filtered_points = filter(line_points);
+            filtered_points.insert(filtered_points.end(), points.begin(), points.end());
+
+            auto transformed_points = transform_points(m.mono, filtered_points);
             auto monotone_shortcuts = simplify_monotone_line(m.line, transformed_points);
 
             // fix up indices
@@ -46,6 +54,25 @@ public:
     }
 
 private:
+    std::vector<point> get_line_points(const std::vector<monotone_decomposition::monotone_subpath>& lines, const std::vector<coordinate>& coordinates) const
+    {
+        std::vector<point> line_points;
+
+        auto line_idx = 0u;
+        for (auto i = 0u; i < coordinates.size(); ++i)
+        {
+            if (i == lines[line_idx].end_idx)
+            {
+                ++line_idx;
+                BOOST_ASSERT(line_idx < lines.size());
+            }
+
+            line_points.push_back({line_idx, i, coordinates[i]});
+        }
+
+        return line_points;
+    }
+
     std::vector<point> transform_points(geometry::monoticity mono, const std::vector<point>& points) const
     {
         std::vector<point> transformed_points;

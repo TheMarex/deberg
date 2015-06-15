@@ -32,7 +32,7 @@ public:
 
         for (const auto& l : lines)
         {
-            PointFilterT filter(l);
+            PointFilterT filter(l.coordinates, l.id);
             auto filtered_points = filter(points);
             SimplificationT simplification(l, std::move(filtered_points));
 

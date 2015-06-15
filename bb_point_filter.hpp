@@ -11,13 +11,14 @@
 class bb_point_filter
 {
 public:
-    bb_point_filter(const poly_line& line)
-    : line(line)
+    bb_point_filter(const std::vector<coordinate>& coordinates, unsigned id)
+    : coordinates(coordinates)
+    , id(id)
     {
         min = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
         max = {-std::numeric_limits<double>::max(), -std::numeric_limits<double>::max()};
 
-        for (const auto& c : line.coordinates)
+        for (const auto& c : coordinates)
         {
             if (c.x < min.x) min.x = c.x;
             if (c.y < min.y) min.y = c.y;
@@ -32,7 +33,7 @@ public:
         std::vector<point> filtered_points;
 
         std::copy_if(points.begin(), points.end(), std::back_inserter(filtered_points),
-                     [this](const point& p) { return p.line_id != line.id && in_bounding_box(p.location); });
+                     [this](const point& p) { return p.line_id != id && in_bounding_box(p.location); });
 
         return filtered_points;
     }
@@ -45,7 +46,8 @@ private:
                coord.x < max.x && coord.y < max.y;
     }
 
-    const poly_line& line;
+    const std::vector<coordinate>& coordinates;
+    unsigned id;
     coordinate min;
     coordinate max;
 

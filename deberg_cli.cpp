@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     auto lines = read_lines(options.line_file_path);
     auto points = read_points(options.point_file_path);
 
-    map_simplification<deberg, bb_point_filter> simplification(std::move(lines), std::move(points));
+    map_simplification<deberg<bb_point_filter>, bb_point_filter> simplification(std::move(lines), std::move(points));
     auto simplified = simplification(options.max_edges);
 
     write_lines(options.output_file_path, simplified);
