@@ -7,6 +7,8 @@
 #include "bb_point_filter.hpp"
 #include "map_simplification.hpp"
 
+#include "timing_util.hpp"
+
 #include <fstream>
 
 void write_lines(const std::string& line_file_path, const std::vector<poly_line>& lines)
@@ -43,8 +45,11 @@ int main(int argc, char** argv)
     auto lines = read_lines(options.line_file_path);
     auto points = read_points(options.point_file_path);
 
+    TIMER_START(simplification);
     map_simplification<deberg<bb_point_filter>, bb_point_filter> simplification(std::move(lines), std::move(points));
     auto simplified = simplification(options.max_edges);
+    TIMER_STOP(simplification);
+    std::cout << "Took " << TIMER_MSEC(simplification) << " msec." << std::endl;
 
     write_lines(options.output_file_path, simplified);
 
