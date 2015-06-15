@@ -42,7 +42,7 @@ SET(LIBRARY_SOURCE
   sweepline_state.cpp
   shortcut_acceptor.cpp
   monotone_decomposition.cpp)
-SET(CLI_SOURCE deberg.cpp)
+SET(CLI_SOURCE deberg_cli.cpp)
 add_executable(tests ${TESTS_SOURCE} ${LIBRARY_SOURCE})
 add_executable(deberg ${LIBRARY_SOURCE} ${CLI_SOURCE})
 target_link_libraries(tests ${Boost_LIBRARIES} tinyxml2)

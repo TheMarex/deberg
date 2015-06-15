@@ -8,6 +8,13 @@
 
 namespace util {
 
+/// epsilon compares two floats
+template<typename T>
+bool epsilon_compare(T precision, T lhs, T rhs)
+{
+    return std::abs(lhs - rhs) < precision;
+}
+
 /// returns a vector `ordering` where `odering[i]` is the index of the ith
 /// element when sorted regarding the comparator function
 template<typename ForwardRandomIter, typename Comparator>

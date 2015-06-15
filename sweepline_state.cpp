@@ -1,12 +1,20 @@
 #include "sweepline_state.hpp"
 
 #include "geometry.hpp"
+#include "util.hpp"
 
 #include <boost/assert.hpp>
 
 #include <algorithm>
 #include <functional>
 #include <iostream>
+
+std::ostream& operator<<(std::ostream& rhs, const sweepline_state::edge& lhs)
+{
+    rhs << lhs.first << "->" << lhs.second;
+
+    return rhs;
+}
 
 bool sweepline_state::edge_comparator(const sweepline_state::edge& lhs,
                                       const sweepline_state::edge& rhs) const
@@ -22,7 +30,11 @@ bool sweepline_state::edge_comparator(const sweepline_state::edge& lhs,
     auto rhs_x = std::max(rhs_start.x, rhs_end.x);
 
     // compare the intersection points on the sweepline
-    return lhs_params.first_param < rhs_params.first_param || (lhs_params.first_param == rhs_params.first_param && lhs_x < rhs_x);
+    bool result = util::epsilon_compare(1e-10, lhs_params.first_param, rhs_params.first_param) ?
+                    (lhs_x < rhs_x) :
+                    (lhs_params.first_param < rhs_params.first_param);
+
+    return result;
 }
 
 void sweepline_state::move_sweepline(const coordinate& position)
@@ -59,6 +71,7 @@ void sweepline_state::remove_edge(const sweepline_state::edge& to_remove)
     auto iter = std::lower_bound(intersecting_edges.begin(), intersecting_edges.end(),
                                  to_remove, std::bind(&sweepline_state::edge_comparator, this,
                                                       std::placeholders::_1, std::placeholders::_2));
+
 
     // search for the real position, might have hit an itersection
     while (iter != intersecting_edges.end() && iter->first != to_remove.first && iter->second != to_remove.second)

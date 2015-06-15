@@ -152,4 +152,28 @@ BOOST_AUTO_TEST_CASE(example_second_line_test)
     auto assignments = distributor(0, { shortcut {0, 4, 1, shortcut::type::MAXIMAL_TANGENT} });
 }
 
+BOOST_AUTO_TEST_CASE(data_test1)
+{
+    std::vector<coordinate> coords = {
+        {-5368675.69013, -7984749.59382},
+        {-5367570.7913,  -7984392.03562},
+        {-5366848.50016, -7983220.84326},
+        {-5364796.57957, -7982343.53435},
+    };
+
+    std::vector<shortcut> tangents {
+        shortcut {0, 2, 1, shortcut::type::MAXIMAL_TANGENT},
+        shortcut {0, 3, 2, shortcut::type::MINIMAL_TANGENT},
+    };
+
+    std::vector<point> points = {
+        {point::NO_LINE_ID, 0, {3879.013320000842, 11682.980560000055}},
+        {point::NO_LINE_ID, 1, {4560.606140000746, 13655.561940000392}}
+    };
+
+    poly_line line {0, coords};
+    point_distributor distributor(line, std::move(points));
+    auto assignments = distributor(0, tangents);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

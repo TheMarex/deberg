@@ -6,6 +6,7 @@
 #include <boost/variant.hpp>
 
 #include <iostream>
+#include <iomanip>
 
 /// Returns an assignment of points for the given tangents that each imply a facet
 ///
