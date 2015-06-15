@@ -72,6 +72,15 @@ private:
             BOOST_ASSERT(path_info.distance[num_nodes-1] == simplified[i].coordinates.size() - 1);
         }
 
+        if (num_used_edges > max_edges)
+        {
+            std::cout << "Warning: There is no simplification using " << max_edges << " edges. " << num_used_edges << " edges is a minimum" << std::endl;
+        }
+        else
+        {
+            std::cout << "Used " << num_used_edges << " edges." << std::endl;
+        }
+
         return simplified;
     }
 
