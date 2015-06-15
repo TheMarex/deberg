@@ -1,3 +1,4 @@
 build
 *.swp
 *.geojson
+__pycache__
