@@ -30,7 +30,7 @@ public:
         {
             const auto& m = monotone_lines[i];
 
-            PointFilterT filter(m.line.coordinates, i);
+            PointFilterT filter(line.coordinates.begin() + m.begin_idx, line.coordinates.begin() + m.end_idx, i);
             auto filtered_points = filter(line_points);
             filtered_points.insert(filtered_points.end(), points.begin(), points.end());
 

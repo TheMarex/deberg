@@ -11,19 +11,19 @@
 class bb_point_filter
 {
 public:
-    bb_point_filter(const std::vector<coordinate>& coordinates, unsigned id)
-    : coordinates(coordinates)
-    , id(id)
+    template<typename ForwardIter>
+    bb_point_filter(ForwardIter begin, ForwardIter end, unsigned id)
+    : id(id)
     {
         min = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
         max = {-std::numeric_limits<double>::max(), -std::numeric_limits<double>::max()};
 
-        for (const auto& c : coordinates)
+        for (auto iter = begin; iter != end; ++iter)
         {
-            if (c.x < min.x) min.x = c.x;
-            if (c.y < min.y) min.y = c.y;
-            if (c.x > max.x) max.x = c.x;
-            if (c.y > max.y) max.y = c.y;
+            if (iter->x < min.x) min.x = iter->x;
+            if (iter->y < min.y) min.y = iter->y;
+            if (iter->x > max.x) max.x = iter->x;
+            if (iter->y > max.y) max.y = iter->y;
         }
 
     }
@@ -46,7 +46,6 @@ private:
                coord.x < max.x && coord.y < max.y;
     }
 
-    const std::vector<coordinate>& coordinates;
     unsigned id;
     coordinate min;
     coordinate max;

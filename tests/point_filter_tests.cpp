@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(example_test)
         {point::NO_LINE_ID, 9, coordinate {1, 2.5}},
     };
 
-    bb_point_filter filter(line.coordinates, line.id);
+    bb_point_filter filter(line.coordinates.begin(), line.coordinates.end(), line.id);
     auto filtered_points = filter(points);
     BOOST_CHECK_EQUAL(filtered_points.size(), 2);
     BOOST_CHECK_EQUAL(filtered_points[0].id, 7);
