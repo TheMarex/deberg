@@ -15,14 +15,10 @@ struct point
     coordinate location;
 };
 
-namespace glm
-{
 inline std::ostream& operator<<(std::ostream& lhs, const coordinate& rhs)
 {
     lhs << "("  << rhs.x << ", " << rhs.y << ")";
     return lhs;
-}
-
 }
 
 #endif

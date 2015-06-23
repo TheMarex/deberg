@@ -6,7 +6,37 @@
 
 #include <algorithm>
 
-#include "test_utils.hpp"
+namespace boost {
+    namespace test_tools {
+        template<>
+        struct print_log_value<coordinate>
+        {
+            void operator()(std::ostream& os,const coordinate& coord)
+            {
+                ::operator<<(os, coord);
+            }
+        };
+    }
+}
+
+namespace geometry {
+inline std::ostream& operator<<(std::ostream& lhs, const geometry::point_position& rhs)
+{
+    switch (rhs)
+    {
+    case geometry::point_position::LEFT_OF_LINE:
+        lhs << "LEFT_OF_LINE";
+        break;
+    case geometry::point_position::RIGHT_OF_LINE:
+        lhs << "RIGHT_OF_LINE";
+        break;
+    case geometry::point_position::ON_LINE:
+        lhs << "ON_LINE";
+        break;
+    }
+    return lhs;
+}
+}
 
 BOOST_AUTO_TEST_SUITE(geometry_tests)
 
@@ -30,9 +60,9 @@ BOOST_AUTO_TEST_CASE(segment_intersection)
     // 4    5     6     7
     // 8    9     10    11
     std::vector<coordinate> coords {
-        {0, 1}, {1, 1}, {2, 1}, {3, 1},
-        {0, 0}, {1, 0}, {2, 0}, {3, 0},
-        {0, -1}, {1, -1}, {2, -1}, {3, -1},
+        coordinate {0, 1}, coordinate {1, 1}, coordinate {2, 1}, coordinate {3, 1},
+        coordinate {0, 0}, coordinate {1, 0}, coordinate {2, 0}, coordinate {3, 0},
+        coordinate {0, -1}, coordinate {1, -1}, coordinate {2, -1}, coordinate {3, -1},
     };
 
     {
@@ -67,7 +97,7 @@ BOOST_AUTO_TEST_CASE(segment_intersection)
 
 BOOST_AUTO_TEST_CASE(intersection_regression)
 {
-    auto params = geometry::segment_intersection({0, 0}, {2, 2}, {1, 1}, {2, 1});
+    auto params = geometry::segment_intersection(coordinate {0, 0}, coordinate {2, 2}, coordinate {1, 1}, coordinate {2, 1});
     BOOST_CHECK_EQUAL(params.first_param, 0.5);
     BOOST_CHECK_EQUAL(params.second_param, 0);
 }

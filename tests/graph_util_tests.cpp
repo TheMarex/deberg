@@ -7,8 +7,6 @@
 
 #include <algorithm>
 
-#include "test_utils.hpp"
-
 BOOST_AUTO_TEST_SUITE(geometry_tests)
 
 struct TestEdge

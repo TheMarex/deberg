@@ -5,8 +5,6 @@
 
 #include <algorithm>
 
-#include "test_utils.hpp"
-
 BOOST_AUTO_TEST_SUITE(static_permutation_deque_tests)
 
 BOOST_AUTO_TEST_CASE(remove_end_test)

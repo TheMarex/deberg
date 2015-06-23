@@ -6,8 +6,6 @@
 
 #include <algorithm>
 
-#include "test_utils.hpp"
-
 BOOST_AUTO_TEST_SUITE(deberg_tests)
 
 BOOST_AUTO_TEST_CASE(example_test)
@@ -94,7 +92,15 @@ BOOST_AUTO_TEST_CASE(self_intersection_test)
     //     / /
     //    2
 
-    poly_line line { 0, {{0, 0}, {1, -1}, {0, -2}, {2, -1}, {0, 0}} };
+    poly_line line { 0,
+        {
+            coordinate {0, 0},
+            coordinate {1, -1},
+            coordinate {0, -2},
+            coordinate {2, -1},
+            coordinate {0, 0}
+        }
+    };
 
     deberg<bb_point_filter> simplification(line, {});
     auto shortcuts = simplification();

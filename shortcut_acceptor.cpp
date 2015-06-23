@@ -5,8 +5,6 @@
 #include "poly_line.hpp"
 #include "util.hpp"
 
-#include "tests/test_utils.hpp"
-
 shortcut_acceptor::shortcut_acceptor(const poly_line& line) : line(line)
 {
 }

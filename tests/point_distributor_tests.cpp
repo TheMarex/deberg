@@ -6,8 +6,6 @@
 
 #include <algorithm>
 
-#include "test_utils.hpp"
-
 BOOST_AUTO_TEST_SUITE(point_distributor_tests)
 
 BOOST_AUTO_TEST_CASE(example)
@@ -70,11 +68,11 @@ BOOST_AUTO_TEST_CASE(example_line_test)
     //
     poly_line line;
     line.coordinates = {
-        {0, 2},
-        {0, 0},
-        {1, 0},
-        {1, 1},
-        {2, 1}
+        coordinate {0, 2},
+        coordinate {0, 0},
+        coordinate {1, 0},
+        coordinate {1, 1},
+        coordinate {2, 1}
     };
 
     std::vector<point> points = {
@@ -155,10 +153,10 @@ BOOST_AUTO_TEST_CASE(example_second_line_test)
 BOOST_AUTO_TEST_CASE(data_test1)
 {
     std::vector<coordinate> coords = {
-        {-5368675.69013, -7984749.59382},
-        {-5367570.7913,  -7984392.03562},
-        {-5366848.50016, -7983220.84326},
-        {-5364796.57957, -7982343.53435},
+        coordinate {-5368675.69013, -7984749.59382},
+        coordinate {-5367570.7913,  -7984392.03562},
+        coordinate {-5366848.50016, -7983220.84326},
+        coordinate {-5364796.57957, -7982343.53435},
     };
 
     std::vector<shortcut> tangents {
@@ -167,8 +165,8 @@ BOOST_AUTO_TEST_CASE(data_test1)
     };
 
     std::vector<point> points = {
-        {point::NO_LINE_ID, 0, {3879.013320000842, 11682.980560000055}},
-        {point::NO_LINE_ID, 1, {4560.606140000746, 13655.561940000392}}
+        {point::NO_LINE_ID, 0, coordinate {3879.013320000842, 11682.980560000055}},
+        {point::NO_LINE_ID, 1, coordinate {4560.606140000746, 13655.561940000392}}
     };
 
     poly_line line {0, coords};

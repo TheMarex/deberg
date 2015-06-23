@@ -8,9 +8,9 @@ BOOST_AUTO_TEST_SUITE(writer_tests)
 BOOST_AUTO_TEST_CASE(line_writer_tests)
 {
     std::vector<poly_line> lines {
-        {0, {{0, 0}, {1, 1}, {1, 0}, {2, 3}}},
-        {1, {{0, 0}, {1, 1}}},
-        {2, {{0.555555, 0}, {1, 1}}},
+        {0, {coordinate {0, 0}, coordinate {1, 1}, coordinate {1, 0}, coordinate {2, 3}}},
+        {1, {coordinate {0, 0}, coordinate {1, 1}}},
+        {2, {coordinate {0.555555, 0}, coordinate {1, 1}}},
     };
     std::stringstream output;
     line_writer writer(output);

@@ -201,11 +201,11 @@ BOOST_AUTO_TEST_CASE(example_line_test)
     //
     poly_line line;
     line.coordinates = {
-        {0, 2},
-        {0, 0},
-        {1, 0},
-        {1, 1},
-        {2, 1}
+        coordinate {0, 2},
+        coordinate {0, 0},
+        coordinate {1, 0},
+        coordinate {1, 1},
+        coordinate {2, 1}
     };
 
     tangent_splitter splitter(line);

@@ -7,8 +7,6 @@
 
 #include <algorithm>
 
-#include "test_utils.hpp"
-
 BOOST_AUTO_TEST_SUITE(map_simplification_tests)
 
 BOOST_AUTO_TEST_CASE(example_test)

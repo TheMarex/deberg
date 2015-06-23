@@ -34,4 +34,14 @@ private:
     coordinate sweepline_end;
 };
 
+namespace std
+{
+template<typename FirstT, typename SecondT>
+std::ostream& operator<<(std::ostream& lhs, const std::pair<FirstT, SecondT>& rhs)
+{
+    lhs << rhs.first << " -> " << rhs.second;
+    return lhs;
+}
+}
+
 #endif

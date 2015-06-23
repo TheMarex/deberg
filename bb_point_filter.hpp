@@ -15,8 +15,8 @@ public:
     bb_point_filter(ForwardIter begin, ForwardIter end, unsigned id)
     : id(id)
     {
-        min = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
-        max = {-std::numeric_limits<double>::max(), -std::numeric_limits<double>::max()};
+        min = coordinate {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
+        max = coordinate {-std::numeric_limits<double>::max(), -std::numeric_limits<double>::max()};
 
         for (auto iter = begin; iter != end; ++iter)
         {

@@ -5,7 +5,18 @@
 
 #include <algorithm>
 
-#include "test_utils.hpp"
+namespace boost {
+    namespace test_tools {
+        template<>
+        struct print_log_value<coordinate>
+        {
+            void operator()(std::ostream& os,const coordinate& coord)
+            {
+                ::operator<<(os, coord);
+            }
+        };
+    }
+}
 
 BOOST_AUTO_TEST_SUITE(monotone_decomposition_tests)
 
