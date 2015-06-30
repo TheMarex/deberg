@@ -28,6 +28,8 @@ Will write the result in `output_lines.txt` and print number of used edges in th
 
 ## Input format
 
+[osm-admin-bounds](https://github.com/TheMarex/osm-admin-bounds) is a tool to generate the input data from OpenStreetMap data.
+
 You can use `utils/data_to_geojson.py` to convert files to geojson for easy visualization.
 
 ### lines.txt
